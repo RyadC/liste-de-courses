@@ -1,3 +1,8 @@
+/****** IMPORTS *******/
+import { formattingInputValue } from './utils.js';
+
+
+
 /****** DOM ELEMENTS *******/
 const EL_FORM = document.querySelector('.form');
 const EL_INPUT_ADD_ITEM = document.querySelector('#nouvel-item');
@@ -15,12 +20,15 @@ EL_FORM.addEventListener('submit', (e) => {
   // Récupérer le contenu de l'input
   const inputValue = EL_INPUT_ADD_ITEM.value;
 
+  // Formatter la donnée récupérée
+  const inputValueFormatted = formattingInputValue(inputValue);
+
   // Cloner le template pour injecter un nouvel <li>
   const EL_CLONE_LI = EL_TEMPLATE.content.cloneNode(true).children[0];
 
   // Injecter la valeur de l'input enregistré dans le <p> enfant du <li>
   const EL_NAME_LI = EL_CLONE_LI.querySelector('.nom');
-  EL_NAME_LI.textContent = inputValue;
+  EL_NAME_LI.textContent = inputValueFormatted;
 
   // Ajouter le <li> en début de liste
   EL_UL.insertAdjacentElement("afterbegin",EL_CLONE_LI);
