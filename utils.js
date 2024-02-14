@@ -25,9 +25,15 @@ function formattingInputValue(inputValue) {
   return inputValueFormatted;
 }
 
+function initializeInputValidity(e) {
+  e.target.setCustomValidity('');
+  e.target.checkValidity();
+}
+
 
 export {
   formattingInputValue,
+  initializeInputValidity,
 }
 
 // dd      ccc  d d d             ddd     d
