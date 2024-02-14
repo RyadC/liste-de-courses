@@ -1,4 +1,4 @@
-function formattingInputValue(inputValue) {
+function removeUnnecessarySpaces(inputValue) {
   // Enlever les espaces de début et de fin
   let inputValueTrimed = inputValue.trim();
 
@@ -13,27 +13,34 @@ function formattingInputValue(inputValue) {
   // Forme une string en remplacant les espaces multiples par un seul espace
   let inputValueWithoutMultipleSpaces = inputValueTrimed.replaceAll(/( )+/g, ' ');
 
-  // Récupère la 1ère lettre pour la mettre en majuscule
-  let firstLetterInCapital = inputValueWithoutMultipleSpaces[0].toUpperCase();
-
-  // Récupère le reste de la string
-  let restOfWord = inputValueWithoutMultipleSpaces.slice(1)
-
-  // Concatène la string entière afin d'avoir une string commençant par une majuscule
-  let inputValueFormatted = firstLetterInCapital + restOfWord
-
-  return inputValueFormatted;
+  return inputValueWithoutMultipleSpaces;
 }
 
-function initializeInputValidity(e) {
-  e.target.setCustomValidity('');
-  e.target.checkValidity();
+function capitalizeFirstLetter(value) {
+    // Récupère la 1ère lettre pour la mettre en majuscule
+    let firstLetterInCapital = value[0].toUpperCase();
+
+    // Récupère le reste de la string
+    let restOfWord = value.slice(1)
+  
+    // Concatène la string entière afin d'avoir une string commençant par une majuscule
+    let inputValueCapitalize = firstLetterInCapital + restOfWord
+
+    return inputValueCapitalize;
 }
+
+
+// function formateValue(value) {
+//   const arrayValueSplit = value.split(' ');
+
+//   console.log(arrayValueSplit)
+
+// }
+// formateValue('23 gr pommes')
 
 
 export {
-  formattingInputValue,
-  initializeInputValidity,
+  removeUnnecessarySpaces,
+  capitalizeFirstLetter,
 }
 
-// dd      ccc  d d d             ddd     d
