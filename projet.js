@@ -1,7 +1,8 @@
 /****** IMPORTS *******/
 import { 
-  removeUnnecessarySpaces,
+  // removeUnnecessarySpaces,
   capitalizeFirstLetter,
+  extractData,
 } from './utils.js';
 
 
@@ -17,81 +18,48 @@ const EL_UL = document.querySelector('#liste');
 
 // * A la validation de l'input via le bouton "Ajouter"
 EL_FORM.addEventListener('submit', (e) => {
-  // Désactiver le comportement par défaut du formulaire
+  //-> Désactiver le comportement par défaut du formulaire
   e.preventDefault();
 
-  // Récupérer le contenu de l'input en format lowercase
+  //-> Récupérer le contenu de l'input en format lowercase
   const inputValue = EL_INPUT_ADD_ITEM.value.toLowerCase();
 
-  // Retirer les espaces inutiles éventuels
-  const inputValueWithoutSpaces = removeUnnecessarySpaces(inputValue);
+  // -> Déclarer les constantes par défaut
+  const DEFAULT_QUANTITY = Number(EL_TEMPLATE.content.querySelector('.quantite').textContent); 
+  const DEFAULT_UNITY = EL_TEMPLATE.content.querySelector('.unite').value; 
 
-  // Récupérer la quantité, l'unité et le nom du produit selon les données fournies par l'utilisateur
+  // -> Extraire les données de l'utilisateur de manière exploitable
+  // ! extractData(source) n'utilise pas les constantes DEFAULT_UNITY et DEFAULT_QUANTITY car ne parvient pas à y faire référence depuis utils.js
+  const product = extractData(inputValue);
 
-  const arrayValueSplit = inputValueWithoutSpaces.split(' ');
-  let nameOfProduct = '';
-  let quantityOfProduct = 1; 
-  let unityOfProduct = 'u';
-  const listOfQuantity = ['u', 'g', 'kg', 'l'];
+  //-> Mettre la 1ère lettre en majuscule
+  product.name = capitalizeFirstLetter(product.name);
 
-  // La 1ère valeur est-elle un nombre ?
-  if(Number(arrayValueSplit[0])){
-    quantityOfProduct = Number(arrayValueSplit[0]);
-
-    // Si oui, alors deux choix possibles : le 2nd est soit le nom ou la quantité
-      // On regarde s'il s'agit de la quantité
-    if(listOfQuantity.includes(arrayValueSplit[1])) {
-      // Si oui alors on récupère l'unité en 2ème position et le nom du produit en 3ème position
-      unityOfProduct = arrayValueSplit[1];
-      // On récupère le reste du tableau puis on concatène pour les produits avec des noms composés : fraises des bois
-      nameOfProduct = arrayValueSplit.slice(2).join(' ');
-      
-    } else {
-      // Sinon, c'est qu'il n'y a pas d'unité de donnée 
-      nameOfProduct = arrayValueSplit.slice(1).join(' ');
-    };
-
-  } else {
-    // Sinon, il s'agit du nom
-    nameOfProduct = arrayValueSplit.slice(0).join(' ');
-  };
-
-  console.log(arrayValueSplit)
-  console.log(unityOfProduct);
-  console.log(quantityOfProduct);
-  console.log(nameOfProduct);
-
-  // Mettre la 1ère lettre en majuscule
-  const nameOfProductCapitalize = capitalizeFirstLetter(nameOfProduct);
-
-  // Cloner le template pour injecter un nouvel <li>
+  //-> Cloner le template pour injecter un nouvel <li>
   const EL_CLONE_LI = EL_TEMPLATE.content.cloneNode(true).children[0];
 
-
-  // Injecter les valeurs de l'input formaté
-    // le nom du produit dans le <p.nom> enfant du <li>
+  //-> Injecter les valeurs de l'input formaté
+    //-> le nom du produit dans le <p.nom> enfant du <li>
   const EL_NAME_LI = EL_CLONE_LI.querySelector('.nom');
-  EL_NAME_LI.textContent = nameOfProductCapitalize;
+  EL_NAME_LI.textContent = product.name;
   
-    // la quantité dans le <p.quantite> enfant du <li>
+    //-> la quantité dans le <p.quantite> enfant du <li>
   const EL_QUANTITY_LI = EL_CLONE_LI.querySelector('.quantite');
-  EL_QUANTITY_LI.textContent = quantityOfProduct;
+  EL_QUANTITY_LI.textContent = product.quantity;
   
-  // l'unité dans l'option du <select>
+  //-> l'unité dans l'option du <select>
   const EL_SELECT_LI = EL_CLONE_LI.querySelector('.unite');
   console.log(EL_SELECT_LI.children)
   for(const option of EL_SELECT_LI) {
-    if(option.value.toLowerCase() === unityOfProduct) {
+    if(option.value.toLowerCase() === product.unity) {
       option.selected = true;
     };
   };
 
-
-
-  // Ajouter le <li> en début de liste
+  //-> Ajouter le <li> en début de liste
   EL_UL.insertAdjacentElement("afterbegin",EL_CLONE_LI);
 
-  // Effacer le champs de l'input après validation puis lui ajouter le focus 
+  //-> Effacer le champs de l'input après validation puis lui ajouter le focus 
   EL_INPUT_ADD_ITEM.value = "";
   EL_INPUT_ADD_ITEM.focus();
 });
