@@ -30,10 +30,10 @@ function capitalizeFirstLetter(value) {
 }
 
 /**
- * Extract the data 
+ * Extract the data to create an object with them
  * @param {string} source is the value from the input
  * @param {Document} htmlDocument is an HTML document to retrieve the default values ​​of HTML elements  
- * @returns Object with params : name, quantity, unity
+ * @returns {object} product with params : name, quantity, unity
  */
 function extractData(source, htmlDocument) {
    // -> Déclarer les constantes par défaut
@@ -54,11 +54,8 @@ function extractData(source, htmlDocument) {
   const LIST_OF_UNITIES = [];
 
   for(const option of EL_OPTIONS) {
-    console.log(option);
     LIST_OF_UNITIES.push(option.value.toLowerCase());
   };
-
-  console.log(LIST_OF_UNITIES);
 
   const product = {
     name: '',
@@ -97,12 +94,41 @@ function extractData(source, htmlDocument) {
   return product;
 }
 
+/**
+ * Create a <li> element configured with user data
+ * @param {Document} htmlDocument is an HTML document to retrieve the <li> element to copy
+ * @param {object} product is the object product from user data
+ * @returns {object} <li> html element
+ */
+function createLiHtmlItem(htmlDocument, product) {
+  //-> Cloner le template pour injecter un nouvel <li>
+  const EL_CLONE_LI = htmlDocument.cloneNode(true).children[0];
 
+  //-> Injecter les valeurs de l'input formaté
+    //-> le nom du produit dans le <p.nom> enfant du <li>
+  const EL_NAME_LI = EL_CLONE_LI.querySelector('.nom');
+  EL_NAME_LI.textContent = product.name;
+  
+    //-> la quantité dans le <p.quantite> enfant du <li>
+  const EL_QUANTITY_LI = EL_CLONE_LI.querySelector('.quantite');
+  EL_QUANTITY_LI.textContent = product.quantity;
+  
+  //-> l'unité dans l'option du <select>
+  const EL_SELECT_LI = EL_CLONE_LI.querySelector('.unite');
+  for(const option of EL_SELECT_LI) {
+    if(option.value.toLowerCase() === product.unity) {
+      option.selected = true;
+    };
+  };
+
+  return EL_CLONE_LI;
+}
 
 export {
   // removeUnnecessarySpaces,
   capitalizeFirstLetter,
   extractData,
+  createLiHtmlItem,
 }
 
 // 5 kg pommes

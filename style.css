@@ -216,7 +216,7 @@ li {
 }
 
 p.nom {
-  overflow: scroll;
+  /* overflow: scroll; */
   white-space: nowrap;
   flex-grow: 0;
 }
