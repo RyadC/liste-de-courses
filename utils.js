@@ -32,28 +32,38 @@ function capitalizeFirstLetter(value) {
 /**
  * Extract the data 
  * @param {string} source is the value from the input
+ * @param {Document} htmlDocument is an HTML document to retrieve the default values ​​of HTML elements  
  * @returns Object with params : name, quantity, unity
  */
-function extractData(source) {
+function extractData(source, htmlDocument) {
+   // -> Déclarer les constantes par défaut
+   const DEFAULT_QUANTITY = Number(htmlDocument.querySelector('.quantite').textContent); 
+   const DEFAULT_UNITY = htmlDocument.querySelector('.unite').value; 
+
   //-> Retirer les espaces inutiles éventuels
   const inputValueWithoutSpaces = removeUnnecessarySpaces(source);
 
   //-> Récupérer la quantité, l'unité et le nom du produit selon les données fournies par l'utilisateur
   const arrayValueSplit = inputValueWithoutSpaces.split(' ');
 
+  const EL_SELECT = htmlDocument.querySelector('.unite');
+  const EL_OPTIONS = EL_SELECT.children;
+  
+  // -> On ajoute dynamiquement la liste des unités selon les éléments HTML pour éviter l'ajout manuel en JS (réduction de maintenance = €€€)
+  // // const LIST_OF_UNITIES = ['u', 'g', 'kg', 'l'];
+  const LIST_OF_UNITIES = [];
 
+  for(const option of EL_OPTIONS) {
+    console.log(option);
+    LIST_OF_UNITIES.push(option.value.toLowerCase());
+  };
 
-  // TODO: Créer un objet avec: le <name>, la <quantity> et l'<unity> comme propriété
-  // // let nameOfProduct = '';
-  // // let quantityOfProduct = DEFAULT_QUANTITY; 
-  // // let unityOfProduct = DEFAULT_UNITY;
-
-  const LIST_OF_UNITIES = ['u', 'g', 'kg', 'l'];
+  console.log(LIST_OF_UNITIES);
 
   const product = {
     name: '',
-    quantity: 1,
-    unity: 'u',
+    quantity: DEFAULT_QUANTITY,
+    unity: DEFAULT_UNITY,
   };
 
   //-> La 1ère valeur est-elle un nombre ?
@@ -95,3 +105,4 @@ export {
   extractData,
 }
 
+// 5 kg pommes
