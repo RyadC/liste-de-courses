@@ -16,6 +16,7 @@ img {
   --gris-100: #E5E5E5;
   --gris-300: #949494;
   --gris-500: #3E3E3E;
+  --box-shadow-color: #949494;
 
   --rouge-500: #ff866e;
   --vert-500: #a3ff6e;
@@ -35,7 +36,7 @@ img {
 
   /* Autres */
   --border-radius: 8px;
-  --box-shadow: 0 0 8px var(var(--box-shadow-color), rgba(0, 0, 0, 0.25));
+  --box-shadow: 0 0 8px var(--box-shadow-color);
   --transition-duration: 200ms;
 }
 
@@ -223,6 +224,7 @@ p.nom {
 
 p.nom:focus {
   flex-grow: 0;
+  border: solid 1px red;
 }
 
 input.nom {

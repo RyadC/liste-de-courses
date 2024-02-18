@@ -10,7 +10,7 @@ import {
 // * N'exécute le code que si le HTML et le CSS est parsé
 document.addEventListener('DOMContentLoaded', () => {
 
-  // -> Initialiser le localStorage : 1ère chose à faire: Récupérer les données utilisateurs en cas de panne
+  // -> Initialiser le localStorage : 1ère chose à faire: Récupérer les données utilisateurs pour éviter de perdre les données en cas de bug
   const store = window.localStorage;
   console.log(store);
 
@@ -19,6 +19,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const EL_INPUT_ADD_ITEM = document.querySelector('#nouvel-item');
   const EL_TEMPLATE = document.querySelector('#template-item');
   const EL_UL = document.querySelector('#liste');
+  const EL_P_NAME = EL_TEMPLATE.content.querySelector('p.nom');
+  const EL_P_QUANTITY = EL_TEMPLATE.content.querySelector('p.quantite');
   /***************************/
 
   // -> Array pour récupérer les items du store (permettra de traiter les items pour l'affichage sur la page)
@@ -63,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // -> Transformer l'objet en string (la valeur en localStorage ne peut être qu'une string) 
     let productToInsert = JSON.stringify(listOfUserItems[indexStore]);
 
-    // -> Injecter le produit dans le store
+    // -> Injecter le produit dans le store (avant de manipuler le DOM)
     store.setItem(indexStore, productToInsert);
     console.log(store);
 
@@ -102,17 +104,49 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
+
   // TODO : Une fois qu'un item est ajouté, il faut pouvoir modifier ses informations facilement
-    // TODO : Changer les éléments <p> du nom de l'item et de sa quantité en <input> lors du focus afin de pouvoir modifier leur contenu
+    // TODO : Changer les éléments <p> p.nom et p.quantite en <input> lors du focus afin de pouvoir modifier leur contenu
 
-    const EL_LIST_PNOM = document.querySelectorAll('p.nom');
-    console.log(EL_LIST_PNOM)
+    const EL_LIST_P_NAME = document.querySelectorAll('.nom');
+    console.log(EL_LIST_P_NAME)
 
-    EL_LIST_PNOM.forEach((element) => {
-      element.addEventListener('click', (e) => {
-        console.log(e.target)
-      });
+
+    EL_LIST_P_NAME.forEach((element) => {
+      // element.addEventListener('blur', (e) => {
+        //   console.log('blur déclenché')
+        //   console.log(e.target);
+        //   console.dir(element);
+        //   // const originalElement = element.outerHTML;
+        //   // element.outerHTML = EL_P_NAME.outerHTML;
+        // });
+
+        element.addEventListener('focus', (e) => {
+          const valuePElement = e.target.textContent;
+
+          // ! Pas possible d'utiliser outerHTML car la référence pointe toujours l'élément suppprimé. Il faut utiliser replaceWith();
+          // // e.target.outerHTML = `<input type="text" class="nom" value="${valuePElement}">`;
+
+          // -> L'élément <p> est mis en mémoire afin de remplacer l'<input> par la suite. Ainsi, il ne sera pas nécessaire de créer un nouvel élément <p> ni même de lui donner des attributs. C'est ainsi un gain en maintenance car on récupèrer l'élément <p> tel qu'il est sans ne rien ajouter ni enlever à ce moment là (s'il est modifier avant ou bien dans le HTML, on le récupère tel quel)
+          const EL_P = e.target;
+          const EL_NEW_INPUT =  document.createElement('input');
+          EL_NEW_INPUT.type = "text";
+          EL_NEW_INPUT.className = e.target.className;
+          EL_NEW_INPUT.value = valuePElement;
+          
+          EL_P.replaceWith(EL_NEW_INPUT);
+
+          EL_NEW_INPUT.focus();
+
+          EL_NEW_INPUT.addEventListener('blur', (e) => {
+            EL_P.textContent = EL_NEW_INPUT.value;
+            EL_NEW_INPUT.replaceWith(EL_P);
+            console.log(EL_P)
+          });
+        });
     });
+
+
 
 
 
