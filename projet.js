@@ -113,14 +113,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     EL_LIST_P_NAME.forEach((element) => {
-      // element.addEventListener('blur', (e) => {
-        //   console.log('blur déclenché')
-        //   console.log(e.target);
-        //   console.dir(element);
-        //   // const originalElement = element.outerHTML;
-        //   // element.outerHTML = EL_P_NAME.outerHTML;
-        // });
-
         element.addEventListener('focus', (e) => {
           const valuePElement = e.target.textContent;
 
@@ -137,6 +129,12 @@ document.addEventListener('DOMContentLoaded', () => {
           EL_P.replaceWith(EL_NEW_INPUT);
 
           EL_NEW_INPUT.focus();
+
+          // // TODO : l'input doit être retransformé à nouveau en élément <p> lorsqu'on appuie sur la touche `Entree`
+          EL_NEW_INPUT.addEventListener('keypress', (e) => {
+            // console.log(e)
+            e.code === 'Enter' ? e.target.blur() : '';
+          });
 
           EL_NEW_INPUT.addEventListener('blur', (e) => {
             EL_P.textContent = EL_NEW_INPUT.value;
