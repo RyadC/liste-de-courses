@@ -4,6 +4,10 @@ import {
   capitalizeFirstLetter,
   extractData,
   createLiHtmlItem,
+  transformHTMLElementtoInput,
+  switchElement,
+  blurOnEnterPress,
+  transformParagraphToInputHandler,
 } from './utils.js';
 /**********************/
 
@@ -105,45 +109,24 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
-  // TODO : Une fois qu'un item est ajouté, il faut pouvoir modifier ses informations facilement
-    // TODO : Changer les éléments <p> p.nom et p.quantite en <input> lors du focus afin de pouvoir modifier leur contenu
+  // // TODO : Une fois qu'un item est ajouté, il faut pouvoir modifier ses informations facilement
+  // -> Changer les éléments <p> p.nom et p.quantite en <input> lors du focus afin de pouvoir modifier leur contenu
+  const EL_LIST_P_NAME = document.querySelectorAll('.nom');
 
-    const EL_LIST_P_NAME = document.querySelectorAll('.nom');
-    console.log(EL_LIST_P_NAME)
-
-
-    EL_LIST_P_NAME.forEach((element) => {
-        element.addEventListener('focus', (e) => {
-          const valuePElement = e.target.textContent;
-
-          // ! Pas possible d'utiliser outerHTML car la référence pointe toujours l'élément suppprimé. Il faut utiliser replaceWith();
-          // // e.target.outerHTML = `<input type="text" class="nom" value="${valuePElement}">`;
-
-          // -> L'élément <p> est mis en mémoire afin de remplacer l'<input> par la suite. Ainsi, il ne sera pas nécessaire de créer un nouvel élément <p> ni même de lui donner des attributs. C'est ainsi un gain en maintenance car on récupèrer l'élément <p> tel qu'il est sans ne rien ajouter ni enlever à ce moment là (s'il est modifier avant ou bien dans le HTML, on le récupère tel quel)
-          const EL_P = e.target;
-          const EL_NEW_INPUT =  document.createElement('input');
-          EL_NEW_INPUT.type = "text";
-          EL_NEW_INPUT.className = e.target.className;
-          EL_NEW_INPUT.value = valuePElement;
-          
-          EL_P.replaceWith(EL_NEW_INPUT);
-
-          EL_NEW_INPUT.focus();
-
-          // // TODO : l'input doit être retransformé à nouveau en élément <p> lorsqu'on appuie sur la touche `Entree`
-          EL_NEW_INPUT.addEventListener('keypress', (e) => {
-            // console.log(e)
-            e.code === 'Enter' ? e.target.blur() : '';
-          });
-
-          EL_NEW_INPUT.addEventListener('blur', (e) => {
-            EL_P.textContent = EL_NEW_INPUT.value;
-            EL_NEW_INPUT.replaceWith(EL_P);
-            console.log(EL_P)
-          });
-        });
+  EL_LIST_P_NAME.forEach((element) => {
+    element.addEventListener('focus', (e) => {
+      transformParagraphToInputHandler(e, 'text');
     });
+  });
 
+
+  const EL_LIST_P_QUANTITY = document.querySelectorAll('.quantite');
+  
+  EL_LIST_P_QUANTITY.forEach((element) => {
+    element.addEventListener('focus', (e) => {
+      transformParagraphToInputHandler(e, 'number');
+    });
+  });
 
 
 

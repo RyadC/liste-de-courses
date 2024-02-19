@@ -124,11 +124,79 @@ function createLiHtmlItem(htmlDocument, product) {
   return EL_CLONE_LI;
 }
 
+/**
+ * Transform an HTML element to an input in the DOM
+ * @param {HTMLElement} HTMLElement 
+ * @param {string} inputType The type attribut of the input
+ * @returns {HTMLElement} The input was created
+ */
+function transformHTMLElementtoInput(HTMLElement, inputType) {
+  const valuePElement = HTMLElement.textContent;
+
+  const EL_NEW_INPUT =  document.createElement('input');
+  EL_NEW_INPUT.type = inputType;
+  
+  if(inputType === 'number') {
+    EL_NEW_INPUT.min = "1";
+    EL_NEW_INPUT.max = "999";
+  };
+
+  EL_NEW_INPUT.className = HTMLElement.className;
+  EL_NEW_INPUT.value = valuePElement;
+  
+  HTMLElement.replaceWith(EL_NEW_INPUT);
+
+  return EL_NEW_INPUT;
+}
+
+/**
+ * Switch between two element in the DOM and retrieve their text value
+ * @param {HTMLElement} elementToReplace 
+ * @param {HTMLElement} substituteElement 
+ */
+function switchElement(elementToReplace, substituteElement) {
+  elementToReplace.textContent = substituteElement.value;
+  substituteElement.replaceWith(elementToReplace);
+  console.log(elementToReplace);
+}
+
+/**
+ * 
+ * @param {*} e 
+ */
+function blurOnEnterPress(e) {
+  e.code === 'Enter' ? e.target.blur() : '';
+}
+
+/**
+ * 
+ * @param {*} e 
+ * @param {*} inputType 
+ */
+function transformParagraphToInputHandler(e, inputType) {
+  const EL_P = e.target;
+  const EL_NEW_INPUT = transformHTMLElementtoInput(EL_P, inputType);
+  EL_NEW_INPUT.focus();
+  
+  EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPress);
+
+  EL_NEW_INPUT.addEventListener('blur', () => {
+    switchElement(EL_P, EL_NEW_INPUT);
+  });
+}
+
+
+
+
 export {
   // removeUnnecessarySpaces,
   capitalizeFirstLetter,
   extractData,
   createLiHtmlItem,
+  transformHTMLElementtoInput,
+  switchElement,
+  blurOnEnterPress,
+  transformParagraphToInputHandler,
 }
 
 // 5 kg pommes
