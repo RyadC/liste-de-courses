@@ -66,31 +66,47 @@ document.addEventListener('DOMContentLoaded', () => {
       EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
 
       EL_NEW_INPUT.addEventListener('blur', (e) => {
+        // -> On récupère la nouvelle valeur entrée par l'utilisateur
+        const newInputValue = EL_NEW_INPUT.value;
 
-        EL_P_NOM.textContent = EL_NEW_INPUT.value;
+        // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
+        EL_P_NOM.textContent = newInputValue;
+
+        // -> On remplace le <input> par le <p>
         EL_NEW_INPUT.replaceWith(EL_P_NOM);
-        console.log(EL_P_NOM);
-
-        // console.log(Array.from(EL_P_NOM.parentElement.parentElement.children).indexOf(EL_P_NOM.parentElement))
-        // const nameProduct = EL_P_NOM.textContent;
-
-        // const indexProduct = Array.from(EL_P_NOM.parentElement.parentElement.children).indexOf(EL_P_NOM.parentElement);
-
-        // console.log(indexProduct);
-
-        // console.log(arrayOfUserItems[indexProduct]);
-
-        // const product = JSON.parse(store.getItem('list'));
-
-        // product.name = nameProduct;
-
-        // console.log(JSON.stringify(product))
-
-        // store.setItem(indexProduct, JSON.stringify(product));
-
-        // console.log()
         
+        // TODO : Sauvegarder les modifs dans les inputs de chaque item
+        // console.dir(EL_P_NOM)
+        // console.log(EL_P_NOM.parentElement)
+        // -> On récupère l'index de l'élément dans la liste des <li>
+        const itemIndexInUlElement = Array.from(EL_P_NOM.parentElement.parentElement.children).indexOf(EL_P_NOM.parentElement);
 
+        // -> On copie le tableau initial de la liste des items
+        const reverseArrayOfProduct = [];
+        Object.assign(reverseArrayOfProduct, arrayOfUserItems);
+
+        // -> On inverse le contenu du tableau pour que l'ordre des items soit comme l'ordre des <li> dans le DOM
+        reverseArrayOfProduct.reverse();
+
+        console.log(reverseArrayOfProduct)
+
+        console.log(reverseArrayOfProduct[itemIndexInUlElement].name)
+        
+        // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
+        reverseArrayOfProduct[itemIndexInUlElement].name = newInputValue;
+
+        console.log(reverseArrayOfProduct[itemIndexInUlElement].name)
+
+        // -> On remet le tableau dans l'ordre initial
+        reverseArrayOfProduct.reverse();
+
+        // -> On copie le nouveau tableau dans le tableau initial
+        Object.assign(arrayOfUserItems, reverseArrayOfProduct);
+
+        console.log(arrayOfUserItems)
+
+        // -> On sauvegarde dans le store
+        store.setItem('list', JSON.stringify(arrayOfUserItems));
       });
     });
 
@@ -115,10 +131,41 @@ document.addEventListener('DOMContentLoaded', () => {
       EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
 
       EL_NEW_INPUT.addEventListener('blur', (e) => {
-
-        EL_P_QUANTITY.textContent = EL_NEW_INPUT.value;
+        const newInputValue = EL_NEW_INPUT.value;
+        EL_P_QUANTITY.textContent = newInputValue;
         EL_NEW_INPUT.replaceWith(EL_P_QUANTITY);
-        console.log(EL_P_QUANTITY);    
+        console.log(EL_P_QUANTITY);
+        
+        // TODO : Sauvegarder les modifs dans les inputs de chaque item
+        // -> On récupère l'index de l'élément dans la liste des <li>
+        const itemIndexInUlElement = Array.from(EL_P_QUANTITY.parentElement.parentElement.children).indexOf(EL_P_QUANTITY.parentElement);
+
+        // -> On copie le tableau initial de la liste des items
+        const reverseArrayOfProduct = [];
+        Object.assign(reverseArrayOfProduct, arrayOfUserItems);
+
+        // -> On inverse le contenu du tableau pour que l'ordre des items soit comme l'ordre des <li> dans le DOM
+        reverseArrayOfProduct.reverse();
+
+        console.log(reverseArrayOfProduct)
+
+        console.log(reverseArrayOfProduct[itemIndexInUlElement].name)
+        
+        // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
+        reverseArrayOfProduct[itemIndexInUlElement].quantity = newInputValue;
+
+        console.log(reverseArrayOfProduct[itemIndexInUlElement].quantity)
+
+        // -> On remet le tableau dans l'ordre initial
+        reverseArrayOfProduct.reverse();
+
+        // -> On copie le nouveau tableau dans le tableau initial
+        Object.assign(arrayOfUserItems, reverseArrayOfProduct);
+
+        console.log(arrayOfUserItems)
+
+        // -> On sauvegarde dans le store
+        store.setItem('list', JSON.stringify(arrayOfUserItems));
       });
 
     });
@@ -184,6 +231,8 @@ document.addEventListener('DOMContentLoaded', () => {
       EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
 
       EL_NEW_INPUT.addEventListener('blur', (e) => {
+        
+
 
         EL_P_NOM.textContent = EL_NEW_INPUT.value;
         EL_NEW_INPUT.replaceWith(EL_P_NOM);
