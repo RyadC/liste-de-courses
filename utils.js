@@ -127,100 +127,11 @@ function createLiHtmlItem(htmlDocument, product) {
   return EL_CLONE_LI;
 }
 
-/**
- * Transform an HTML element to an input in the DOM
- * @param {HTMLElement} HTMLElement 
- * @param {string} inputType The type attribut of the input
- * @returns {HTMLElement} The input was created
- */
-function transformPElementtoInput(PElement, inputType) {
-  const valuePElement = PElement.textContent;
-
-  const EL_NEW_INPUT =  document.createElement('input');
-  EL_NEW_INPUT.type = inputType;
-  
-  if(inputType === 'number') {
-    EL_NEW_INPUT.min = "1";
-    EL_NEW_INPUT.max = "999";
-  };
-
-  EL_NEW_INPUT.className = PElement.className;
-  EL_NEW_INPUT.value = valuePElement;
-  
-  PElement.replaceWith(EL_NEW_INPUT);
-
-  return EL_NEW_INPUT;
-}
-
-/**
- * Switch between two element in the DOM and retrieve their text value
- * @param {HTMLElement} elementToReplace 
- * @param {HTMLElement} substituteElement 
- */
-function switchBetweenPandInputInDOM(newElement, oldElement) {
-  
-  newElement.textContent = oldElement.value;
-  oldElement.replaceWith(newElement);
-  // console.log(elementToReplace);
-}
-
-/**
- * 
- * @param {*} e 
- */
-function blurOnEnterPressHandler(e) {
-  e.code === 'Enter' ? e.target.blur() : '';
-}
-
-/**
- * 
- * @param {*} e 
- * @param {*} inputType 
- */
-function transformParagraphToInputHandler(pElement, inputType) {
-  // console.log('dans le focus')
-  const EL_P = pElement;
-  const EL_NEW_INPUT = transformPElementtoInput(EL_P, inputType);
-  EL_NEW_INPUT.focus();
-
-  return {
-    EL_NEW_INPUT,
-    EL_P
-  };
-  
-  // EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
-
-
-  // // EL_NEW_INPUT.addEventListener('blur', () => {
-  // //   switchBetweenPandInputInDOM(EL_P, EL_NEW_INPUT);
-  // // });
-  // EL_NEW_INPUT.addEventListener('blur', (e) => blurHandler(e, EL_P, EL_NEW_INPUT));
-}
-
-/**
- * 
- */
-function blurHandler(e, elementToReplace, substituteElement) {
-  // console.dir(Array.from(elementToReplace.parentElement.parentElement.children).indexOf(elementToReplace.parentElement))
-  // console.log(sub.parentElement)
-  switchBetweenPandInputInDOM(elementToReplace, substituteElement);
-  
-  return elementToReplace;
-}
-
-
-
-
 export {
   // removeUnnecessarySpaces,
   capitalizeFirstLetter,
   extractData,
   createLiHtmlItem,
-  transformPElementtoInput,
-  switchBetweenPandInputInDOM,
-  blurOnEnterPressHandler,
-  transformParagraphToInputHandler,
-  blurHandler,
 }
 
 // 5 kg pommes
