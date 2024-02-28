@@ -30,10 +30,8 @@ document.addEventListener('DOMContentLoaded', () => {
   // -> Array pour injecter les éléments <li> dans le DOM
   let reverseArrayOfUserItems = [];
   
-  // TODO : Récupérer les items du localStorage s'il contient des items
+  // -> Récupérer les items du localStorage s'il contient des items
   if(store.length) {
-    // console.log(store.list);
-    // console.log(JSON.parse(store.list));
     arrayOfUserItems = JSON.parse(store.list);
 
     // -> Copier le tableau et le mettre à l'enver pour que les <li> injectés dans le DOM soit dans le même ordre qu'initialement
@@ -43,6 +41,60 @@ document.addEventListener('DOMContentLoaded', () => {
 
   console.log('arrayOfUserItems', arrayOfUserItems)
 
+
+  function focusOn(HTMLElementToListen) {
+    HTMLElementToListen.addEventListener('focus', (e) => {
+        const valuePElement = HTMLElementToListen.textContent;
+
+        const EL_NEW_INPUT =  document.createElement('input');
+
+        let propertyToChange = '';
+
+        if(e.target.classList.contains('nom')) {
+          EL_NEW_INPUT.type = 'text';
+          propertyToChange = 'name';
+        } else {
+          EL_NEW_INPUT.type = 'number';
+          EL_NEW_INPUT.min = '1';
+          EL_NEW_INPUT.max = '999';
+          propertyToChange = 'quantity';
+        }
+  
+        EL_NEW_INPUT.className = HTMLElementToListen.className;
+        EL_NEW_INPUT.value = valuePElement;
+        
+        HTMLElementToListen.replaceWith(EL_NEW_INPUT);
+        
+        EL_NEW_INPUT.focus();
+  
+        EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
+  
+        EL_NEW_INPUT.addEventListener('blur', (e) => {
+          // -> On récupère la nouvelle valeur entrée par l'utilisateur
+          const newInputValue = EL_NEW_INPUT.value;
+  
+          // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
+          HTMLElementToListen.textContent = newInputValue;
+  
+          // -> On remplace le <input> par le <p>
+          EL_NEW_INPUT.replaceWith(HTMLElementToListen);
+          
+          // -> Sauvegarder les modifs dans les inputs de chaque item
+          // -> On récupère l'élément <ul>
+          const EL_UL = HTMLElementToListen.closest('ul');
+  
+          // -> On récupère l'index de l'élément dans la liste des <li>
+          const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(HTMLElementToListen.parentElement);
+  
+          // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
+          arrayOfUserItems[itemIndexInUlElement][propertyToChange] = newInputValue;
+          console.log('arrayOfUserItems après :', arrayOfUserItems);
+          
+          // -> On sauvegarde dans le store
+          store.setItem('list', JSON.stringify(arrayOfUserItems));
+        });
+      });
+  }
 
   // * Afficher les items récupérés du localStorage sur la page
   for(const item of reverseArrayOfUserItems) {
@@ -57,90 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // -> Ajouter les écouteurs d'évènement au <li>
       // -> Pour p.nom
     const EL_P_NOM = newLiElement.querySelector('.nom');
-
-    EL_P_NOM.addEventListener('focus', (e) => {
-    //  const { EL_NEW_INPUT, EL_P } = transformParagraphToInputHandler(EL_P_NOM, 'text');
-      const valuePElement = EL_P_NOM.textContent;
-
-      const EL_NEW_INPUT =  document.createElement('input');
-      EL_NEW_INPUT.type = 'text';
-      EL_NEW_INPUT.className = EL_P_NOM.className;
-      EL_NEW_INPUT.value = valuePElement;
-      
-      EL_P_NOM.replaceWith(EL_NEW_INPUT);
-      
-      EL_NEW_INPUT.focus();
-
-      EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
-
-      EL_NEW_INPUT.addEventListener('blur', (e) => {
-        // -> On récupère la nouvelle valeur entrée par l'utilisateur
-        const newInputValue = EL_NEW_INPUT.value;
-
-        // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
-        EL_P_NOM.textContent = newInputValue;
-
-        // -> On remplace le <input> par le <p>
-        EL_NEW_INPUT.replaceWith(EL_P_NOM);
-        
-        // -> Sauvegarder les modifs dans les inputs de chaque item
-        // -> On récupère l'élément <ul>
-        const EL_UL = EL_P_NOM.closest('ul');
-
-        // -> On récupère l'index de l'élément dans la liste des <li>
-        const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(EL_P_NOM.parentElement);
-
-        // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
-        arrayOfUserItems[itemIndexInUlElement].name = newInputValue;
-        console.log('arrayOfUserItems après :', arrayOfUserItems);
-        
-        // -> On sauvegarde dans le store
-        store.setItem('list', JSON.stringify(arrayOfUserItems));
-      });
-    });
-
+    focusOn(EL_P_NOM);
+    
       // -> Pour p.quantite
     const EL_P_QUANTITY = newLiElement.querySelector('.quantite');
-
-    EL_P_QUANTITY.addEventListener('focus', (e) => {
-    // transformParagraphToInputHandler(e, 'number');
-    const valuePElement = EL_P_QUANTITY.textContent;
-
-    const EL_NEW_INPUT =  document.createElement('input');
-    EL_NEW_INPUT.type = 'number';
-    EL_NEW_INPUT.min = '1';
-    EL_NEW_INPUT.max = '999';
-    EL_NEW_INPUT.className = EL_P_QUANTITY.className;
-    EL_NEW_INPUT.value = valuePElement;
-    
-    EL_P_QUANTITY.replaceWith(EL_NEW_INPUT);
-    
-    EL_NEW_INPUT.focus();
-
-    EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
-
-    EL_NEW_INPUT.addEventListener('blur', (e) => {
-      const newInputValue = EL_NEW_INPUT.value;
-      EL_P_QUANTITY.textContent = newInputValue;
-      EL_NEW_INPUT.replaceWith(EL_P_QUANTITY);
-      console.log(EL_P_QUANTITY);
-      
-      // -> Sauvegarder les modifs dans les inputs de chaque item
-      // -> On récupère l'élément <ul>
-      const EL_UL = EL_P_QUANTITY.closest('ul');
-
-      // -> On récupère l'index de l'élément dans la liste des <li>
-      const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(EL_P_QUANTITY.parentElement);
-
-      // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
-      arrayOfUserItems[itemIndexInUlElement].quantity = newInputValue;
-      console.log('arrayOfUserItems après :', arrayOfUserItems);
-      
-      // -> On sauvegarde dans le store
-      store.setItem('list', JSON.stringify(arrayOfUserItems));
-    });
-
-    });
+    focusOn(EL_P_QUANTITY);
   }
 
 
@@ -182,99 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
     //-> Ajouter le <li> en début de liste
     EL_UL.insertAdjacentElement("afterbegin",newLiElement);
 
-      //-> Ajouter les écouteurs d'évènement au <li>
-        //-> Pour p.nom
-      const EL_P_NOM = newLiElement.querySelector('.nom');
+    //-> Ajouter les écouteurs d'évènement au <li>
+      //-> Pour p.nom
+    const EL_P_NOM = newLiElement.querySelector('.nom');
+    focusOn(EL_P_NOM);
 
-      EL_P_NOM.addEventListener('focus', (e) => {
-      //  const { EL_NEW_INPUT, EL_P } = transformParagraphToInputHandler(EL_P_NOM, 'text');
-        const valuePElement = EL_P_NOM.textContent;
+      //-> Pour p.quantite
+    const EL_P_QUANTITY = newLiElement.querySelector('.quantite');
+    focusOn(EL_P_QUANTITY);
   
-        const EL_NEW_INPUT =  document.createElement('input');
-        EL_NEW_INPUT.type = 'text';
-        EL_NEW_INPUT.className = EL_P_NOM.className;
-        EL_NEW_INPUT.value = valuePElement;
-        
-        EL_P_NOM.replaceWith(EL_NEW_INPUT);
-        
-        EL_NEW_INPUT.focus();
-  
-        EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
-  
-        EL_NEW_INPUT.addEventListener('blur', (e) => {
-          // -> On récupère la nouvelle valeur entrée par l'utilisateur
-          const newInputValue = EL_NEW_INPUT.value;
-  
-          // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
-          EL_P_NOM.textContent = newInputValue;
-  
-          // -> On remplace le <input> par le <p>
-          EL_NEW_INPUT.replaceWith(EL_P_NOM);
-          
-          // -> Sauvegarder les modifs dans les inputs de chaque item
-          // -> On récupère l'élément <ul>
-          const EL_UL = EL_P_NOM.closest('ul');
-
-          // -> On récupère l'index de l'élément dans la liste des <li>
-          const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(EL_P_NOM.parentElement);
-
-          // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
-          arrayOfUserItems[itemIndexInUlElement].name = newInputValue;
-          console.log('arrayOfUserItems après :', arrayOfUserItems);
-          
-          // -> On sauvegarde dans le store
-          store.setItem('list', JSON.stringify(arrayOfUserItems));
-        });
-      });
-  
-        //-> Pour p.quantite
-      const EL_P_QUANTITY = newLiElement.querySelector('.quantite');
-  
-      EL_P_QUANTITY.addEventListener('focus', (e) => {
-      // transformParagraphToInputHandler(e, 'number');
-      const valuePElement = EL_P_QUANTITY.textContent;
-
-      const EL_NEW_INPUT =  document.createElement('input');
-      EL_NEW_INPUT.type = 'number';
-      EL_NEW_INPUT.min = '1';
-      EL_NEW_INPUT.max = '999';
-      EL_NEW_INPUT.className = EL_P_QUANTITY.className;
-      EL_NEW_INPUT.value = valuePElement;
-      
-      EL_P_QUANTITY.replaceWith(EL_NEW_INPUT);
-      
-      EL_NEW_INPUT.focus();
-
-      EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
-
-      EL_NEW_INPUT.addEventListener('blur', (e) => {
-        const newInputValue = EL_NEW_INPUT.value;
-        EL_P_QUANTITY.textContent = newInputValue;
-        EL_NEW_INPUT.replaceWith(EL_P_QUANTITY);
-        console.log(EL_P_QUANTITY);
-        
-        // -> Sauvegarder les modifs dans les inputs de chaque item
-        // -> On récupère l'élément <ul>
-        const EL_UL = EL_P_QUANTITY.closest('ul');
-
-        // -> On récupère l'index de l'élément dans la liste des <li>
-        const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(EL_P_QUANTITY.parentElement);
-
-        // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
-        arrayOfUserItems[itemIndexInUlElement].quantity = newInputValue;
-        console.log('arrayOfUserItems après :', arrayOfUserItems);
-        
-        // -> On sauvegarde dans le store
-        store.setItem('list', JSON.stringify(arrayOfUserItems));
-      });
-
-      });
-
-  
-
-     
-    
-
     //-> Effacer le champs de l'input après validation puis lui ajouter le focus 
     EL_INPUT_ADD_ITEM.value = "";
     EL_INPUT_ADD_ITEM.focus();
