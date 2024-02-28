@@ -5,6 +5,7 @@ import {
   createLiHtmlItem,
   focusOn,
   saveToStore,
+  changeOn,
 } from './utils.js';
 
 /**********************/
@@ -55,6 +56,10 @@ document.addEventListener('DOMContentLoaded', () => {
       // -> Pour p.quantite
     const EL_P_QUANTITY = newLiElement.querySelector('.quantite');
     focusOn(EL_P_QUANTITY, arrayOfUserItems, store, KEY_STORE);
+
+      // -> Pour le select
+    const EL_SELECT = newLiElement.querySelector('.unite');
+    changeOn(EL_SELECT, arrayOfUserItems, store, KEY_STORE);
   }
 
 
@@ -78,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // -> Injecter le produit dans le store (avant de manipuler le DOM)
-    // store.setItem('list', stringListOfUserItems);
     saveToStore(store, KEY_STORE, arrayOfUserItems);
 
     // -> Créer un élément <li> avec les données utilisateur
@@ -95,6 +99,10 @@ document.addEventListener('DOMContentLoaded', () => {
       //-> Pour p.quantite
     const EL_P_QUANTITY = newLiElement.querySelector('.quantite');
     focusOn(EL_P_QUANTITY, arrayOfUserItems, store, KEY_STORE);
+
+    // -> Pour le select
+    const EL_SELECT = newLiElement.querySelector('.unite');
+    changeOn(EL_SELECT, arrayOfUserItems, store, KEY_STORE);
   
     //-> Effacer le champs de l'input après validation puis lui ajouter le focus 
     EL_INPUT_ADD_ITEM.value = "";

@@ -246,17 +246,9 @@ function focusOn(HTMLElementToListen, listOfItems, store, keyStore) {
 
         // -> On remplace le <input> par le <p>
         EL_NEW_INPUT.replaceWith(HTMLElementToListen);
-        
-        // -> Sauvegarder les modifs dans les inputs de chaque item
-        // -> On récupère l'élément <ul>
-        const EL_UL = HTMLElementToListen.closest('ul');
 
-        // -> On récupère l'index de l'élément dans la liste des <li>
-        const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(HTMLElementToListen.parentElement);
-
-        // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
-        listOfItems[itemIndexInUlElement][propertyToChange] = newInputValue;
-        console.log('arrayOfUserItems après :', listOfItems);
+        // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
+        updateArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newInputValue);
         
         // -> On sauvegarde dans le store
         saveToStore(store, keyStore, listOfItems);
@@ -264,6 +256,31 @@ function focusOn(HTMLElementToListen, listOfItems, store, keyStore) {
     });
 }
 
+
+function changeOn(HTMLElementToListen, listOfItems, store, keyStore) {
+  HTMLElementToListen.addEventListener('change', (e) => {
+    const propertyToChange = 'unity';
+    const newSelectValue = e.srcElement.value;
+  
+    // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
+    updateArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newSelectValue);
+  
+    // -> On sauvegarde dans le store
+    saveToStore(store, keyStore, listOfItems);
+  });
+}
+
+
+function updateArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newValue) {
+  // -> On récupère l'élément <ul>
+  const EL_UL = HTMLElementToListen.closest('ul');
+
+  // -> On récupère l'index de l'élément dans la liste des <li>
+  const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(HTMLElementToListen.closest('li'));
+
+  // -> On change la valeur de l'item selon la modification de l'utilisateur dans le tableau
+  listOfItems[itemIndexInUlElement][propertyToChange] = newValue;
+}
 
 
 function saveToStore(store, keyStore, valueToSave) {
@@ -278,13 +295,9 @@ export {
   capitalizeFirstLetter,
   extractData,
   createLiHtmlItem,
-  transformPElementtoInput,
-  switchBetweenPandInputInDOM,
-  blurOnEnterPressHandler,
-  transformParagraphToInputHandler,
-  blurHandler,
   focusOn,
   saveToStore,
+  changeOn,
 }
 
 // 5 kg pommes
