@@ -210,7 +210,7 @@ function blurHandler(e, elementToReplace, substituteElement) {
 }
 
 
-function focusOn(HTMLElementToListen, listOfItems, store) {
+function focusOn(HTMLElementToListen, listOfItems, store, keyStore) {
   HTMLElementToListen.addEventListener('focus', (e) => {
       const valuePElement = HTMLElementToListen.textContent;
 
@@ -259,11 +259,17 @@ function focusOn(HTMLElementToListen, listOfItems, store) {
         console.log('arrayOfUserItems après :', listOfItems);
         
         // -> On sauvegarde dans le store
-        store.setItem('list', JSON.stringify(listOfItems));
+        saveToStore(store, keyStore, listOfItems);
       });
     });
 }
 
+
+
+function saveToStore(store, keyStore, valueToSave) {
+  let stringListOfUserItems = JSON.stringify(valueToSave);
+  store.setItem(keyStore, stringListOfUserItems);
+};
 
 
 
@@ -278,6 +284,7 @@ export {
   transformParagraphToInputHandler,
   blurHandler,
   focusOn,
+  saveToStore,
 }
 
 // 5 kg pommes
