@@ -210,6 +210,61 @@ function blurHandler(e, elementToReplace, substituteElement) {
 }
 
 
+function focusOn(HTMLElementToListen, listOfItems, store) {
+  HTMLElementToListen.addEventListener('focus', (e) => {
+      const valuePElement = HTMLElementToListen.textContent;
+
+      const EL_NEW_INPUT =  document.createElement('input');
+
+      let propertyToChange = '';
+
+      if(e.target.classList.contains('nom')) {
+        EL_NEW_INPUT.type = 'text';
+        propertyToChange = 'name';
+      } else {
+        EL_NEW_INPUT.type = 'number';
+        EL_NEW_INPUT.min = '1';
+        EL_NEW_INPUT.max = '999';
+        propertyToChange = 'quantity';
+      }
+
+      EL_NEW_INPUT.className = HTMLElementToListen.className;
+      EL_NEW_INPUT.value = valuePElement;
+      
+      HTMLElementToListen.replaceWith(EL_NEW_INPUT);
+      
+      EL_NEW_INPUT.focus();
+
+      EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
+
+      EL_NEW_INPUT.addEventListener('blur', (e) => {
+        // -> On récupère la nouvelle valeur entrée par l'utilisateur
+        const newInputValue = EL_NEW_INPUT.value;
+
+        // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
+        HTMLElementToListen.textContent = newInputValue;
+
+        // -> On remplace le <input> par le <p>
+        EL_NEW_INPUT.replaceWith(HTMLElementToListen);
+        
+        // -> Sauvegarder les modifs dans les inputs de chaque item
+        // -> On récupère l'élément <ul>
+        const EL_UL = HTMLElementToListen.closest('ul');
+
+        // -> On récupère l'index de l'élément dans la liste des <li>
+        const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(HTMLElementToListen.parentElement);
+
+        // -> On change le nom de l'item selon la modification de l'utilisateur dans le tableau
+        listOfItems[itemIndexInUlElement][propertyToChange] = newInputValue;
+        console.log('arrayOfUserItems après :', listOfItems);
+        
+        // -> On sauvegarde dans le store
+        store.setItem('list', JSON.stringify(listOfItems));
+      });
+    });
+}
+
+
 
 
 export {
@@ -222,6 +277,7 @@ export {
   blurOnEnterPressHandler,
   transformParagraphToInputHandler,
   blurHandler,
+  focusOn,
 }
 
 // 5 kg pommes

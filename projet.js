@@ -5,6 +5,7 @@ import {
   extractData,
   createLiHtmlItem,
   blurOnEnterPressHandler,
+  focusOn,
 } from './utils.js';
 /**********************/
 
@@ -41,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   console.log('arrayOfUserItems', arrayOfUserItems)
 
-
+/*
   function focusOn(HTMLElementToListen) {
     HTMLElementToListen.addEventListener('focus', (e) => {
         const valuePElement = HTMLElementToListen.textContent;
@@ -95,6 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       });
   }
+  */
 
   // * Afficher les items récupérés du localStorage sur la page
   for(const item of reverseArrayOfUserItems) {
@@ -109,11 +111,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // -> Ajouter les écouteurs d'évènement au <li>
       // -> Pour p.nom
     const EL_P_NOM = newLiElement.querySelector('.nom');
-    focusOn(EL_P_NOM);
+    focusOn(EL_P_NOM, arrayOfUserItems, store);
     
       // -> Pour p.quantite
     const EL_P_QUANTITY = newLiElement.querySelector('.quantite');
-    focusOn(EL_P_QUANTITY);
+    focusOn(EL_P_QUANTITY, arrayOfUserItems, store);
   }
 
 
@@ -158,11 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
     //-> Ajouter les écouteurs d'évènement au <li>
       //-> Pour p.nom
     const EL_P_NOM = newLiElement.querySelector('.nom');
-    focusOn(EL_P_NOM);
+    focusOn(EL_P_NOM, arrayOfUserItems, store);
 
       //-> Pour p.quantite
     const EL_P_QUANTITY = newLiElement.querySelector('.quantite');
-    focusOn(EL_P_QUANTITY);
+    focusOn(EL_P_QUANTITY, arrayOfUserItems, store);
   
     //-> Effacer le champs de l'input après validation puis lui ajouter le focus 
     EL_INPUT_ADD_ITEM.value = "";
