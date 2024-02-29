@@ -6,6 +6,8 @@ import {
   focusOn,
   saveToStore,
   changeOn,
+  deleteOn,
+
 } from './utils.js';
 
 /**********************/
@@ -60,8 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
       // -> Pour le select
     const EL_SELECT = newLiElement.querySelector('.unite');
     changeOn(EL_SELECT, arrayOfUserItems, store, KEY_STORE);
-  }
 
+      // -> Pour la suppression de l'item
+    const EL_DELETE_BTN = document.querySelector('.supprimer');
+    deleteOn(EL_DELETE_BTN, arrayOfUserItems, store, KEY_STORE);
+  }
+  
 
 
   // * A la validation de l'input via le bouton "Ajouter"
@@ -103,6 +109,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // -> Pour le select
     const EL_SELECT = newLiElement.querySelector('.unite');
     changeOn(EL_SELECT, arrayOfUserItems, store, KEY_STORE);
+
+    // -> Pour la suppression de l'item
+    const EL_DELETE_BTN = document.querySelector('.supprimer');
+    deleteOn(EL_DELETE_BTN, arrayOfUserItems, store, KEY_STORE);
+
   
     //-> Effacer le champs de l'input après validation puis lui ajouter le focus 
     EL_INPUT_ADD_ITEM.value = "";
