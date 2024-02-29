@@ -285,7 +285,6 @@ function deleteOn(HTMLElementToListen, listOfItems, store, keyStore) {
     
     EL_LI.addEventListener('transitionend', (e) => {
       // -> On supprime l'item <li> du DOM mais on choisi la propriété 'height' car sinon il va chiosir la 1ère qui se termine qui est box-shadow et va supprimer l'élément avant même que les autres transitions se terminent
-      console.log(e.propertyName)
       if(e.propertyName === 'height') {
         EL_LI.remove();
       }
@@ -308,7 +307,6 @@ function deleteItemInArrayOfItems(item, listOfItems) {
 
   // -> On change la valeur de l'item <li>, selon la modification de l'utilisateur, dans le tableau
   listOfItems.splice(itemIndexInUlElement, 1);
-  console.log(listOfItems);
 }
 
 
@@ -326,7 +324,35 @@ function findIndexOfItem(HTMLElementToListen) {
 function saveToStore(store, keyStore, listeOfUserItems) {
   let stringListOfUserItems = JSON.stringify(listeOfUserItems);
   store.setItem(keyStore, stringListOfUserItems);
-};
+}
+
+
+/**
+ * Opens the email manager with the list of products in the body of the email to the desired recipient
+ * @param {string} email The recipient who should receive the email. An email address is expected
+ * @param {array} listOfItems An array that contains the list of items object 
+ */
+function sendListByEmail(email, listOfItems ) {
+  let url = '';
+  let subject = 'Liste%20de%20courses';
+  let body = 'Voici%20la%20liste%20de%20course%20,%20n%27oublie%20rien%20stp%20%3A%0A%0A';
+
+  listOfItems.forEach((item) => {
+    let formatedNameForURL = item.name;
+    let brokendownName = item.name.split(' ');
+
+    if(brokendownName.length > 1) {
+      formatedNameForURL = brokendownName.join('%20');
+    }
+
+    body += `-%20${formatedNameForURL}%20(${item.quantity}%20${item.unity})%0D%0A`;
+  })
+
+  url = `mailto:${email}?subject=${subject}&body=${body}`;
+
+  window.location = url;
+}
+
 
 
 
@@ -339,6 +365,7 @@ export {
   saveToStore,
   changeOn,
   deleteOn,
+  sendListByEmail,
 }
 
 // 5 kg pommes

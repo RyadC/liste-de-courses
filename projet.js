@@ -7,6 +7,7 @@ import {
   saveToStore,
   changeOn,
   deleteOn,
+  sendListByEmail,
 
 } from './utils.js';
 
@@ -66,8 +67,6 @@ document.addEventListener('DOMContentLoaded', () => {
       // -> Pour la suppression de l'item
     const EL_DELETE_BTN = document.querySelector('.supprimer');
     deleteOn(EL_DELETE_BTN, arrayOfUserItems, store, KEY_STORE);
-    
-    
   }
   
 
@@ -146,6 +145,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
   });
 
+
+  // * Exporter les données par email en cliquant sur le bouton "exporter"
+  const EL_EXPORT_BTN = document.querySelector('#exporter');
+  EL_EXPORT_BTN.addEventListener('click', (e) => {
+    sendListByEmail('ktourtay@gmail.com', arrayOfUserItems);
+  })
+
+
 });
+
 
 // 4 kg pommes rouges
