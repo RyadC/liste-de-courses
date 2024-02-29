@@ -295,7 +295,6 @@ footer {
   max-width: 800px;
   width: calc(100vw - 2 * var(--dim-5));
   margin: 0 auto var(--dim-5);
-  background-color: blue;
 }
 
 #exporter {
