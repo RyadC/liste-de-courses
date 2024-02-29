@@ -271,6 +271,8 @@ function changeOn(HTMLElementToListen, listOfItems, store, keyStore) {
 }
 
 function deleteOn(HTMLElementToListen, listOfItems, store, keyStore) {
+  const EL_LI = HTMLElementToListen.closest('li');
+
   HTMLElementToListen.addEventListener('click', (e) => {
     // -> On supprime l'item <li> de la liste contenu dans le tableau
     deleteItemInArrayOfItems(HTMLElementToListen, listOfItems);
@@ -278,10 +280,18 @@ function deleteOn(HTMLElementToListen, listOfItems, store, keyStore) {
     // -> On sauvegarde dans le store
     saveToStore(store, keyStore, listOfItems);
 
-    // -> On supprime l'item <li> du DOM
-    const EL_LI = HTMLElementToListen.closest('li');
-    EL_LI.remove();
+    // -> On ajoute la classe .suppression pour améliorer l'UX
+    EL_LI.classList.add('suppression');
+    
+    EL_LI.addEventListener('transitionend', (e) => {
+      // -> On supprime l'item <li> du DOM mais on choisi la propriété 'height' car sinon il va chiosir la 1ère qui se termine qui est box-shadow et va supprimer l'élément avant même que les autres transitions se terminent
+      console.log(e.propertyName)
+      if(e.propertyName === 'height') {
+        EL_LI.remove();
+      }
+    });
   });
+
 }
 
 
