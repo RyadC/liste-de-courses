@@ -248,7 +248,7 @@ function focusOn(HTMLElementToListen, listOfItems, store, keyStore) {
         EL_NEW_INPUT.replaceWith(HTMLElementToListen);
 
         // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
-        updateArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newInputValue);
+        changeValueItemInArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newInputValue);
         
         // -> On sauvegarde dans le store
         saveToStore(store, keyStore, listOfItems);
@@ -263,13 +263,12 @@ function changeOn(HTMLElementToListen, listOfItems, store, keyStore) {
     const newSelectValue = e.srcElement.value;
   
     // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
-    updateArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newSelectValue);
+    changeValueItemInArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newSelectValue);
   
     // -> On sauvegarde dans le store
     saveToStore(store, keyStore, listOfItems);
   });
 }
-
 
 function deleteOn(HTMLElementToListen, listOfItems, store, keyStore) {
   const EL_LI = HTMLElementToListen.closest('li');
@@ -292,7 +291,6 @@ function deleteOn(HTMLElementToListen, listOfItems, store, keyStore) {
       }
     });
   });
-
 }
 
 
@@ -321,13 +319,12 @@ function findIndexOfItem(HTMLElementToListen) {
   // -> On récupère l'index de l'élément dans la liste des <li>
   const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(HTMLElementToListen.closest('li'));
 
-  // -> On change la valeur de l'item selon la modification de l'utilisateur dans le tableau
-  listOfItems[itemIndexInUlElement][propertyToChange] = newValue;
+  return itemIndexInUlElement;
 }
 
 
-function saveToStore(store, keyStore, valueToSave) {
-  let stringListOfUserItems = JSON.stringify(valueToSave);
+function saveToStore(store, keyStore, listeOfUserItems) {
+  let stringListOfUserItems = JSON.stringify(listeOfUserItems);
   store.setItem(keyStore, stringListOfUserItems);
 };
 
@@ -341,6 +338,7 @@ export {
   focusOn,
   saveToStore,
   changeOn,
+  deleteOn,
 }
 
 // 5 kg pommes
