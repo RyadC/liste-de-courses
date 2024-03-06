@@ -198,100 +198,6 @@ function transformParagraphToInputHandler(pElement, inputType) {
   // EL_NEW_INPUT.addEventListener('blur', (e) => blurHandler(e, EL_P, EL_NEW_INPUT));
 }
 
-/**
- * 
- */
-function blurHandler(e, elementToReplace, substituteElement) {
-  // console.dir(Array.from(elementToReplace.parentElement.parentElement.children).indexOf(elementToReplace.parentElement))
-  // console.log(sub.parentElement)
-  switchBetweenPandInputInDOM(elementToReplace, substituteElement);
-  
-  return elementToReplace;
-}
-
-
-function focusOn(HTMLElementToListen, listOfItems, store, keyStore) {
-  HTMLElementToListen.addEventListener('focus', (e) => {
-      const valuePElement = HTMLElementToListen.textContent;
-
-      const EL_NEW_INPUT =  document.createElement('input');
-
-      let propertyToChange = '';
-
-      if(e.target.classList.contains('nom')) {
-        EL_NEW_INPUT.type = 'text';
-        propertyToChange = 'name';
-      } else {
-        EL_NEW_INPUT.type = 'number';
-        EL_NEW_INPUT.min = '1';
-        EL_NEW_INPUT.max = '999';
-        propertyToChange = 'quantity';
-      }
-
-      EL_NEW_INPUT.className = HTMLElementToListen.className;
-      EL_NEW_INPUT.value = valuePElement;
-      
-      HTMLElementToListen.replaceWith(EL_NEW_INPUT);
-      
-      EL_NEW_INPUT.focus();
-
-      EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
-
-      EL_NEW_INPUT.addEventListener('blur', (e) => {
-        // -> On récupère la nouvelle valeur entrée par l'utilisateur
-        const newInputValue = EL_NEW_INPUT.value;
-
-        // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
-        HTMLElementToListen.textContent = newInputValue;
-
-        // -> On remplace le <input> par le <p>
-        EL_NEW_INPUT.replaceWith(HTMLElementToListen);
-
-        // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
-        changeValueItemInArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newInputValue);
-        
-        // -> On sauvegarde dans le store
-        saveToStore(store, keyStore, listOfItems);
-      });
-    });
-}
-
-
-function changeOn(HTMLElementToListen, listOfItems, store, keyStore) {
-  HTMLElementToListen.addEventListener('change', (e) => {
-    const propertyToChange = 'unity';
-    const newSelectValue = e.srcElement.value;
-  
-    // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
-    changeValueItemInArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newSelectValue);
-  
-    // -> On sauvegarde dans le store
-    saveToStore(store, keyStore, listOfItems);
-  });
-}
-
-function deleteOn(HTMLElementToListen, listOfItems, store, keyStore) {
-  const EL_LI = HTMLElementToListen.closest('li');
-
-  HTMLElementToListen.addEventListener('click', (e) => {
-    // -> On supprime l'item <li> de la liste contenu dans le tableau
-    deleteItemInArrayOfItems(HTMLElementToListen, listOfItems);
-
-    // -> On sauvegarde dans le store
-    saveToStore(store, keyStore, listOfItems);
-
-    // -> On ajoute la classe .suppression pour améliorer l'UX
-    EL_LI.classList.add('suppression');
-    
-    EL_LI.addEventListener('transitionend', (e) => {
-      // -> On supprime l'item <li> du DOM mais on choisi la propriété 'height' car sinon il va chiosir la 1ère qui se termine qui est box-shadow et va supprimer l'élément avant même que les autres transitions se terminent
-      if(e.propertyName === 'height') {
-        EL_LI.remove();
-      }
-    });
-  });
-}
-
 
 function changeValueItemInArrayOfItems(item, listOfItems, propertyToChange, newValue) {
   // -> On récupère l'index de l'élément <li> dans la liste des <li>
@@ -354,18 +260,247 @@ function sendListByEmail(email, listOfItems ) {
 }
 
 
+/********************* EVENTS HANDLERS  ****************************/
+
+/**
+ * 
+ */
+function blurHandler(e, elementToReplace, substituteElement) {
+  // console.dir(Array.from(elementToReplace.parentElement.parentElement.children).indexOf(elementToReplace.parentElement))
+  // console.log(sub.parentElement)
+  switchBetweenPandInputInDOM(elementToReplace, substituteElement);
+  
+  return elementToReplace;
+}
+
+
+function onParagFocus(HTMLElementToListen, listOfItems, store, keyStore) {
+  HTMLElementToListen.addEventListener('focus', (e) => {
+      const valuePElement = HTMLElementToListen.textContent;
+
+      const EL_NEW_INPUT =  document.createElement('input');
+
+      let propertyToChange = '';
+
+      if(e.target.classList.contains('nom')) {
+        EL_NEW_INPUT.type = 'text';
+        propertyToChange = 'name';
+      } else {
+        EL_NEW_INPUT.type = 'number';
+        EL_NEW_INPUT.min = '1';
+        EL_NEW_INPUT.max = '999';
+        propertyToChange = 'quantity';
+      }
+
+      EL_NEW_INPUT.className = HTMLElementToListen.className;
+      EL_NEW_INPUT.value = valuePElement;
+      
+      HTMLElementToListen.replaceWith(EL_NEW_INPUT);
+      
+      EL_NEW_INPUT.focus();
+
+      EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
+
+      EL_NEW_INPUT.addEventListener('blur', (e) => {
+        // -> On récupère la nouvelle valeur entrée par l'utilisateur
+        const newInputValue = EL_NEW_INPUT.value;
+
+        // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
+        HTMLElementToListen.textContent = newInputValue;
+
+        // -> On remplace le <input> par le <p>
+        EL_NEW_INPUT.replaceWith(HTMLElementToListen);
+
+        // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
+        changeValueItemInArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newInputValue);
+        
+        // -> On sauvegarde dans le store
+        saveToStore(store, keyStore, listOfItems);
+      });
+    });
+}
+
+
+function onSelectChange(HTMLElementToListen, listOfItems, store, keyStore) {
+  HTMLElementToListen.addEventListener('change', (e) => {
+    const propertyToChange = 'unity';
+    const newSelectValue = e.srcElement.value;
+  
+    // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
+    changeValueItemInArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newSelectValue);
+  
+    // -> On sauvegarde dans le store
+    saveToStore(store, keyStore, listOfItems);
+  });
+}
+
+
+function onLiDelete(HTMLElementToListen, listOfItems, store, keyStore) {
+  const EL_LI = HTMLElementToListen.closest('li');
+
+  HTMLElementToListen.addEventListener('click', (e) => {
+    // -> On supprime l'item <li> de la liste contenu dans le tableau
+    deleteItemInArrayOfItems(HTMLElementToListen, listOfItems);
+
+    // -> On sauvegarde dans le store
+    saveToStore(store, keyStore, listOfItems);
+
+    // -> On ajoute la classe .suppression pour améliorer l'UX
+    EL_LI.classList.add('suppression');
+    
+    EL_LI.addEventListener('transitionend', (e) => {
+      // -> On supprime l'item <li> du DOM mais on choisi la propriété 'height' car sinon il va chiosir la 1ère qui se termine qui est box-shadow et va supprimer l'élément avant même que les autres transitions se terminent
+      if(e.propertyName === 'height') {
+        EL_LI.remove();
+      }
+    });
+  });
+}
+
+function onLiDragStart(liElement) {
+  liElement.addEventListener('dragstart', (e) => {
+    liElement.classList.add('drag-start');
+  })
+}
+
+
+
+function onLiDragOver(liElement, indicatorElement) {
+  liElement.addEventListener('dragover', (e) => {
+    const isDragLi = liElement.classList.contains('drag-start');
+    if(!isDragLi) {
+      const locationOfDrag = e.offsetY; 
+      const middleHeightOfLi = liElement.clientHeight / 2;
+      // console.log('middleHeightOfLi : ', middleHeightOfLi);
+      // console.log('locationOfDrag : ', locationOfDrag);
+
+      // -> Si le drag est en dessous de la moitié de l'élément dragover
+      if(locationOfDrag > middleHeightOfLi) {
+        // -> Y a-t-il un <li> après l'élément dragover ? 
+        const thereIsElementAfter = liElement.nextElementSibling ;
+        
+        // -> Si oui, s'agit-il de l'indicateur
+        const indicatorIsPresent = thereIsElementAfter ? thereIsElementAfter.classList.contains('indicateur') : false;
+
+        // -> Ou bien s'agit-il de mon élément en drag
+        const nextElementIsDragLi = thereIsElementAfter ? thereIsElementAfter.classList.contains('drag-start') : false;
+
+        // -> S'il ne s'agit ni de l'indicateur et ni de mon <li> en drag, alors j'affiche l'indicateur
+        if(!nextElementIsDragLi && !indicatorIsPresent) {
+          liElement.insertAdjacentElement('afterend', indicatorElement);
+        }
+
+        // -> Si l'élément en dragover est suivi du <li> en drag alors je n'affiche pas l'indicateur
+        if(nextElementIsDragLi) {
+          indicatorElement.remove();
+        }
+      } 
+      
+      // -> Si le drag est au dessus de la moitié de l'élément dragover
+      if(locationOfDrag < middleHeightOfLi) {
+        // -> Y a-t-il un <li> avant l'élément dragover ? 
+        const thereIsElementBefore = liElement.previousElementSibling ;
+
+        // -> Si oui, s'agit-il de l'indicateur
+        const indicatorIsPresentBefore = thereIsElementBefore ?  thereIsElementBefore.classList.contains('indicateur') : false;
+
+        // -> Ou bien s'agit-il de mon élément en drag
+        const previousElementIsDragLi = thereIsElementBefore ? thereIsElementBefore.classList.contains('drag-start') : false;
+
+        // -> S'il ne s'agit ni de l'indicateur et ni de mon <li> en drag, alors j'affiche l'indicateur
+        if(!previousElementIsDragLi && !indicatorIsPresentBefore) {
+          liElement.insertAdjacentElement('beforebegin', indicatorElement);
+        }
+
+        // -> Si l'élément en dragover est précédé du <li> en drag alors je n'affiche pas l'indicateur
+        if(previousElementIsDragLi) {
+          indicatorElement.remove();
+        }
+      }
+
+      // -> Si l'élément en dragover et mon <li> en drag alors je n'affiche pas l'indicateur
+    } else {
+      indicatorElement.remove();
+    }
+  })
+}
+
+
+function onLiDragEnd(liElement, indicatorElement) {
+  liElement.addEventListener('dragend', (e) => {
+
+    liElement.removeAttribute('draggable');
+
+    liElement.classList.remove('drag-start');
+
+    indicatorElement.replaceWith(liElement);
+    
+  });
+}
+
+
+function onBtnGrap(HTMLElementToListen, indicatorElement) {
+  const EL_LI = HTMLElementToListen.closest('li');
+
+  HTMLElementToListen.addEventListener('mousedown', (e) => {
+
+    // console.log(e);
+    EL_LI.setAttribute('draggable', 'true');
+  });
+
+  HTMLElementToListen.addEventListener('mouseup', (e) => {
+    // console.log(e);
+    // liElement.removeAttribute('draggable');
+    // console.log(EL_INDICATOR)
+    indicatorElement.remove();
+
+  });
+}
+
+
+function eventsHandler(liElement, indicatorElement, listOfItems, store, keyStore) {
+  // -> Ajouter les écouteurs d'évènement au <li>
+    // -> Focus sur p.nom
+  const EL_P_NOM = liElement.querySelector('.nom');
+  onParagFocus(EL_P_NOM, listOfItems, store, keyStore);
+
+    // -> Focus sur p.quantite
+  const EL_P_QUANTITY = liElement.querySelector('.quantite');
+  onParagFocus(EL_P_QUANTITY, listOfItems, store, keyStore);
+
+    // -> Change sur le select
+  const EL_SELECT = liElement.querySelector('.unite');
+  onSelectChange(EL_SELECT, listOfItems, store, keyStore);
+
+    // -> Click sur le btn pour la suppression de l'item
+  const EL_DELETE_BTN = liElement.querySelector('.supprimer');
+  onLiDelete(EL_DELETE_BTN, listOfItems, store, keyStore);
+
+    // -> Grap du bouton du <li>
+  const EL_HANDLE = liElement.querySelector('.poignee');
+  onBtnGrap(EL_HANDLE,indicatorElement);
+
+    // -> Drag du <li>
+  onLiDragStart(liElement);
+
+    // -> Dragover du <li>
+  onLiDragOver(liElement, indicatorElement);
+
+    // -> Dragend du <li>
+    onLiDragEnd(liElement, indicatorElement);
+
+}
+
+
 
 
 export {
-  // removeUnnecessarySpaces,
   capitalizeFirstLetter,
   extractData,
   createLiHtmlItem,
-  focusOn,
   saveToStore,
-  changeOn,
-  deleteOn,
   sendListByEmail,
+  eventsHandler,
 }
 
 // 5 kg pommes

@@ -3,11 +3,9 @@ import {
   capitalizeFirstLetter,
   extractData,
   createLiHtmlItem,
-  focusOn,
   saveToStore,
-  changeOn,
-  deleteOn,
   sendListByEmail,
+  eventsHandler,
 
 } from './utils.js';
 
@@ -57,87 +55,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // -> Ajouter le <li> en début de liste
     EL_UL.insertAdjacentElement("afterbegin",EL_LI);
 
-    // -> Ajouter les écouteurs d'évènement au <li>
-      // -> Focus sur p.nom
-    const EL_P_NOM = EL_LI.querySelector('.nom');
-    focusOn(EL_P_NOM, arrayOfUserItems, store, KEY_STORE);
-    
-      // -> Focus sur p.quantite
-    const EL_P_QUANTITY = EL_LI.querySelector('.quantite');
-    focusOn(EL_P_QUANTITY, arrayOfUserItems, store, KEY_STORE);
-
-      // -> Change sur le select
-    const EL_SELECT = EL_LI.querySelector('.unite');
-    changeOn(EL_SELECT, arrayOfUserItems, store, KEY_STORE);
-
-      // -> Click sur le btn pour la suppression de l'item
-    const EL_DELETE_BTN = EL_LI.querySelector('.supprimer');
-    deleteOn(EL_DELETE_BTN, arrayOfUserItems, store, KEY_STORE);
-
-      // -> Drag du <li>
-    const EL_HANDLE = EL_LI.querySelector('.poignee');
-    EL_HANDLE.addEventListener('mousedown', (e) => {
-      // console.log(e);
-      EL_LI.setAttribute('draggable', 'true');
-    });
-
-    EL_HANDLE.addEventListener('mouseup', (e) => {
-      // console.log(e);
-      // EL_LI.removeAttribute('draggable');
-      // console.log(EL_INDICATOR)
-      EL_INDICATOR.remove();
-
-    });
-
-    EL_LI.addEventListener('dragstart', (e) => {
-      // console.log('dragstart');
-      EL_LI.classList.add('drag-start');
-    })
-    
-
-    EL_LI.addEventListener('dragend', (e) => {
-      // console.log('dragend');
-      EL_LI.removeAttribute('draggable');
-      EL_LI.classList.remove('drag-start')
-      // console.log(EL_INDICATOR)
-      EL_INDICATOR.remove();
-    });
-
-
-
-
-    EL_LI.addEventListener('dragover', (e) => {
-      const isDragLi = EL_LI.classList.contains('drag-start');
-      if(!isDragLi) {
-        const locationOfDrag = e.offsetY; 
-        const middleHeightOfLi = EL_LI.clientHeight / 2;
-        // console.log('middleHeightOfLi : ', middleHeightOfLi);
-        // console.log('locationOfDrag : ', locationOfDrag);
-  
-        // -> Si le drag est au dessous de la moitié de l'élément dragover
-        if(locationOfDrag > middleHeightOfLi) {
-          // -> Y a-t-il un <li> après l'élément dragover ? Si oui, s'agit-il de l'indicateur
-          const isIndicatorPresent = EL_LI.nextElementSibling ? EL_LI.nextElementSibling.classList.contains('indicateur') : false;
-
-          if(!isIndicatorPresent) {
-            EL_LI.insertAdjacentElement('afterend', EL_INDICATOR);
-          }
-          // -> Si le drag est au dessus de la moitié de l'élément dragover
-        } else {
-          // -> Y a-t-il un <li> avant l'élément dragover ? Si oui, s'agit-il de l'indicateur
-          const isIndicatorPresent = EL_LI.previousElementSibling ?  EL_LI.previousElementSibling.classList.contains('indicateur') : false;
-
-          if(!isIndicatorPresent) {
-            EL_LI.insertAdjacentElement('beforebegin', EL_INDICATOR);
-          }
-        }
-      }
-
-     
-
-    })
-
-    
+ 
+    // -> Ajouter les écouteurs d'évènement au <li> et ses éléments enfants
+    eventsHandler(EL_LI, EL_INDICATOR, arrayOfUserItems, store, KEY_STORE);
     
     
     
@@ -180,22 +100,8 @@ document.addEventListener('DOMContentLoaded', () => {
     //-> Ajouter le <li> en début de liste
     EL_UL.insertAdjacentElement("afterbegin",newLiElement);
 
-    //-> Ajouter les écouteurs d'évènement au <li>
-      //-> Pour p.nom
-    const EL_P_NOM = newLiElement.querySelector('.nom');
-    focusOn(EL_P_NOM, arrayOfUserItems, store, KEY_STORE);
-
-      //-> Pour p.quantite
-    const EL_P_QUANTITY = newLiElement.querySelector('.quantite');
-    focusOn(EL_P_QUANTITY, arrayOfUserItems, store, KEY_STORE);
-
-    // -> Pour le select
-    const EL_SELECT = newLiElement.querySelector('.unite');
-    changeOn(EL_SELECT, arrayOfUserItems, store, KEY_STORE);
-
-    // -> Pour la suppression de l'item
-    const EL_DELETE_BTN = document.querySelector('.supprimer');
-    deleteOn(EL_DELETE_BTN, arrayOfUserItems, store, KEY_STORE);
+    // -> Ajouter les écouteurs d'évènement au <li> et ses éléments enfants
+    eventsHandler(newLiElement, EL_INDICATOR, arrayOfUserItems, store, KEY_STORE);
 
   
     //-> Effacer le champs de l'input après validation puis lui ajouter le focus 
