@@ -230,6 +230,7 @@ function findIndexOfItem(HTMLElementToListen) {
 function saveToStore(store, keyStore, listeOfUserItems) {
   let stringListOfUserItems = JSON.stringify(listeOfUserItems);
   store.setItem(keyStore, stringListOfUserItems);
+  console.log(store)
 }
 
 
@@ -358,8 +359,15 @@ function onLiDelete(HTMLElementToListen, listOfItems, store, keyStore) {
 }
 
 function onLiDragStart(liElement) {
-  liElement.addEventListener('dragstart', (e) => {
+  return liElement.addEventListener('dragstart', (e) => {
     liElement.classList.add('drag-start');
+
+    const EL_UL = liElement.closest('ul');
+    const EL_LIST_LI = Array.from(EL_UL.childNodes);
+    
+    // indexOfLi = EL_LIST_LI.indexOf(liElement); 
+
+    
   })
 }
 
@@ -426,7 +434,7 @@ function onLiDragOver(liElement, indicatorElement) {
 }
 
 
-function onLiDragEnd(liElement, indicatorElement) {
+function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, indexOfLi) {
   liElement.addEventListener('dragend', (e) => {
 
     liElement.removeAttribute('draggable');
@@ -434,7 +442,44 @@ function onLiDragEnd(liElement, indicatorElement) {
     liElement.classList.remove('drag-start');
 
     indicatorElement.replaceWith(liElement);
-    
+
+    // TODO : Sauvegarder dans le store le changement de place
+    // ...
+    const EL_UL = liElement.closest('ul');
+    const EL_LIST_LI = Array.from(EL_UL.childNodes);
+    const newListOfItems = [];
+    // console.dir(EL_UL)
+    // console.log(EL_LIST_LI)
+    // console.log(EL_LIST_LI.indexOf(liElement));
+
+    // const newIndexOfLi = EL_LIST_LI.indexOf(liElement); 
+
+    // console.log(listOfItems)
+    // listOfItems.splice(indexOfLi, 1);
+    // console.log(indexOfLi)
+
+
+    // EL_LIST_LI.forEach((li) => {
+    //   console.log(li === liElement)
+    // })
+    // console.log(listOfItems)
+    // console.log(listOfItems)
+
+    EL_LIST_LI.forEach((li) => {
+      const EL_P_NOM = li.querySelector('.nom');
+      const EL_P_QUANTITY = li.querySelector('.quantite');
+      const EL_SELECT = li.querySelector('.unite');
+
+      newListOfItems.push({
+        name: EL_P_NOM.textContent,
+        quantity: EL_P_QUANTITY.textContent,
+        unity: EL_SELECT.value.toLowerCase(),
+      })
+    });
+
+
+    saveToStore(store, keyStore, newListOfItems);
+    console.log(store);
   });
 }
 
@@ -487,7 +532,7 @@ function eventsHandler(liElement, indicatorElement, listOfItems, store, keyStore
   onLiDragOver(liElement, indicatorElement);
 
     // -> Dragend du <li>
-    onLiDragEnd(liElement, indicatorElement);
+  onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems);
 
 }
 
