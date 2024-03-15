@@ -66,6 +66,7 @@ function extractData(source, htmlDocument) {
     quantity: DEFAULT_QUANTITY,
     unity: DEFAULT_UNITY,
   };
+  
 
   //-> La 1ère valeur est-elle un nombre ?
   if(Number(arrayValueSplit[0])){
@@ -363,11 +364,10 @@ function onLiDragStart(liElement) {
     liElement.classList.add('drag-start');
 
     const EL_UL = liElement.closest('ul');
-    const EL_LIST_LI = Array.from(EL_UL.childNodes);
-    
-    // indexOfLi = EL_LIST_LI.indexOf(liElement); 
 
-    
+    // -> Pour ajouter les :: before sur les li afin d'afficher l'indicateur meme quand on passe entre deux <li> sans survoler les <li> (en passant sur le côté) car entre les deux se trouve un ::before
+    EL_UL.classList.add('drag-en-cours');
+    const EL_LIST_LI = Array.from(EL_UL.childNodes);
   })
 }
 
@@ -443,27 +443,10 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
 
     indicatorElement.replaceWith(liElement);
 
-    // TODO : Sauvegarder dans le store le changement de place
-    // ...
+    // -> Sauvegarder dans le store le changement de place
     const EL_UL = liElement.closest('ul');
     const EL_LIST_LI = Array.from(EL_UL.childNodes);
     const newListOfItems = [];
-    // console.dir(EL_UL)
-    // console.log(EL_LIST_LI)
-    // console.log(EL_LIST_LI.indexOf(liElement));
-
-    // const newIndexOfLi = EL_LIST_LI.indexOf(liElement); 
-
-    // console.log(listOfItems)
-    // listOfItems.splice(indexOfLi, 1);
-    // console.log(indexOfLi)
-
-
-    // EL_LIST_LI.forEach((li) => {
-    //   console.log(li === liElement)
-    // })
-    // console.log(listOfItems)
-    // console.log(listOfItems)
 
     EL_LIST_LI.forEach((li) => {
       const EL_P_NOM = li.querySelector('.nom');
@@ -477,6 +460,9 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
       })
     });
 
+    // -> Retirer les ::before lorsque le drag est fini
+    EL_UL.classList.remove('drag-en-cours');
+
 
     saveToStore(store, keyStore, newListOfItems);
     console.log(store);
@@ -488,8 +474,6 @@ function onBtnGrap(HTMLElementToListen, indicatorElement) {
   const EL_LI = HTMLElementToListen.closest('li');
 
   HTMLElementToListen.addEventListener('mousedown', (e) => {
-
-    // console.log(e);
     EL_LI.setAttribute('draggable', 'true');
   });
 
