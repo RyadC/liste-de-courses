@@ -184,6 +184,8 @@ li {
   margin-top: var(--dim-3);
   height: var(--dim-6);
   right: 0;
+  transition: box-shadow, transform;
+  transition-duration: .5s;;
 }
 
 .suppression {

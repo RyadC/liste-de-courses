@@ -361,6 +361,7 @@ function onLiDelete(HTMLElementToListen, listOfItems, store, keyStore) {
 
 function onLiDragStart(liElement) {
   return liElement.addEventListener('dragstart', (e) => {
+    console.log('dragstart')
     liElement.classList.add('drag-start');
 
     const EL_UL = liElement.closest('ul');
@@ -440,33 +441,99 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
     liElement.removeAttribute('draggable');
 
     liElement.classList.remove('drag-start');
+    console.log(('dragend'));
 
-    indicatorElement.replaceWith(liElement);
+    // indicatorElement.replaceWith(liElement);
 
     // -> Sauvegarder dans le store le changement de place
     const EL_UL = liElement.closest('ul');
-    const EL_LIST_LI = Array.from(EL_UL.childNodes);
-    const newListOfItems = [];
 
-    EL_LIST_LI.forEach((li) => {
-      const EL_P_NOM = li.querySelector('.nom');
-      const EL_P_QUANTITY = li.querySelector('.quantite');
-      const EL_SELECT = li.querySelector('.unite');
+    // -> EventListener pour effectuer le déplacement du <li> une fois seulement que le scale et le box-shadow soit terminé (mieux que de faire un seTimeout car le délais css n'est pas garantie et la maintenance et + importante car changement du délais manuellement) 
 
-      newListOfItems.push({
-        name: EL_P_NOM.textContent,
-        quantity: EL_P_QUANTITY.textContent,
-        unity: EL_SELECT.value.toLowerCase(),
-      })
-    });
+    liElement.addEventListener('transitionend', (e) => {
+      // -> Seulement si la transition concerne l'attribut 'transform'
+      if(e.propertyName === 'transform') {
+        // TODO: On récupère l'élément située au-dessus de l'indicateur 
+        const listOfLi = Array.of(...EL_UL.children);
+
+        const liToMoveForLanding = listOfLi.find(li => li === indicatorElement.previousElementSibling);
+
+        const indexOfLiToMoveForLanding = listOfLi.indexOf(indicatorElement.previousElementSibling);
+
+        const indexOfLiMoving = listOfLi.indexOf(liElement);
+
+        // -> Seulement si la phase correpsond au décollage
+        if(liElement.dataset.phase === 'take-off') {
+          // -> On change le dataset pour ne plus entrer dans le if car on entre dans la phase de déplacement
+          liElement.dataset.phase = 'moving';
+
+          // TODO: On calcule la place de cet élément par rapport au top de l'écran
+          const liLocationToMoveForLanding = liToMoveForLanding.offsetTop;
+          const liMovingLocation = liElement.offsetTop;
+
+          // TODO: On calcule la place de l'élément en mouvement par rapport au top de l'écran
+          const translateYForLanding = liLocationToMoveForLanding - liMovingLocation;
+          console.log(translateYForLanding)
+
+          // TODO: On déplace l'élément en mouvement eu niveau de l'élément au dessus de l'indicateur
+          liElement.style.transform += ` translateY(${translateYForLanding + 32}px)`;
+
+        } 
+        
+        if(liElement.dataset.phase === 'moving') {
+          // -> On change le dataset pour ne plus entrer dans le if car on entre dans la phase d'atterrissage
+          liElement.dataset.phase = 'landing';
+
+          
+          // TODO: On déplace tout les éléments au dessus de l'indicateur vers le haut
+          listOfLi.forEach(li => {
+            if(listOfLi.indexOf(li) <=  indexOfLiToMoveForLanding && listOfLi.indexOf(li) !== indexOfLiMoving) {
+              console.log(li.previousElementSibling.offsetHeight);
+              li.style.transform = `translateY(-${li.offsetHeight - 16}px)`;
+            }
+          })
+
+          // TODO: On effectue l'atterrissage
+        } 
+          
+      }
+
+    })
+
+    // -> Attribut HTML ajouté pour gérer les différentes phases (décollage, déplacement, atterrissage)
+    liElement.dataset.phase = 'take-off';
+ 
+    // -> CSS à ajouter pour la phase de décollage et de déplacement
+    liElement.style.transform = 'scale(1.05)';
+    liElement.style.boxShadow = '0 0 24px rgba(32, 32, 32, .8)';
+
+
+    // const EL_LIST_LI = Array.from(EL_UL.childNodes);
+    // const newListOfItems = [];
+
+    // EL_LIST_LI.forEach((li) => {
+    //   const EL_P_NOM = li.querySelector('.nom');
+    //   const EL_P_QUANTITY = li.querySelector('.quantite');
+    //   const EL_SELECT = li.querySelector('.unite');
+
+    //   newListOfItems.push({
+    //     name: EL_P_NOM.textContent,
+    //     quantity: EL_P_QUANTITY.textContent,
+    //     unity: EL_SELECT.value.toLowerCase(),
+    //   })
+    // });
+
 
     // -> Retirer les ::before lorsque le drag est fini
     EL_UL.classList.remove('drag-en-cours');
 
 
-    saveToStore(store, keyStore, newListOfItems);
+    // saveToStore(store, keyStore, newListOfItems);
     console.log(store);
   });
+
+
+
 }
 
 
