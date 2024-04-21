@@ -439,9 +439,8 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
   liElement.addEventListener('dragend', (e) => {
 
     liElement.removeAttribute('draggable');
-
     liElement.classList.remove('drag-start');
-    console.log(('dragend'));
+    // console.log(('dragend'));
 
     // indicatorElement.replaceWith(liElement);
 
@@ -455,46 +454,107 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
       if(e.propertyName === 'transform') {
         // TODO: On récupère l'élément située au-dessus de l'indicateur 
         const listOfLi = Array.of(...EL_UL.children);
+        const indicatorPosition = listOfLi.indexOf(indicatorElement);
+        const liElementPosition = listOfLi.indexOf(liElement);
+        
+        // const liToMoveForLanding = listOfLi.find(li => li === indicatorElement.previousElementSibling);
+        
+        
+        // const indexOfLiMoving = listOfLi.indexOf(liElement);
+        
+        
+        
+        
+        switch (liElement.dataset.phase) {
+          case 'take-off':
+            const marginTopLiElement = Number.parseInt(window.getComputedStyle(liElement).marginTop);
+            const heightLiElement = liElement.offsetHeight;
+            const totalHeightLiElement = heightLiElement + marginTopLiElement;
 
-        const liToMoveForLanding = listOfLi.find(li => li === indicatorElement.previousElementSibling);
+            const itemsNumber = indicatorPosition - liElementPosition;
 
-        const indexOfLiToMoveForLanding = listOfLi.indexOf(indicatorElement.previousElementSibling);
+            const movingUpward = indicatorPosition > liElementPosition;
 
-        const indexOfLiMoving = listOfLi.indexOf(liElement);
+            const translateValue = movingUpward
+                                    ? 
+                                    totalHeightLiElement * (itemsNumber - 1)
+                                    :
+                                    totalHeightLiElement * (itemsNumber + 1);
+            console.log('translateValue', translateValue);
+            console.log('indicatorPosition', indicatorPosition);
+            console.log('liElementPosition', liElementPosition);
+                                    
+
+            liElement.style.transform += ` translateY(${translateValue}px)`;
+
+            liElement.dataset.phase = 'moving';
+            
+
+          break;
+
+          case 'moving':
+            
+          break;
+
+          case 'landing':
+            
+          break;
+        
+          default:
+            break;
+        }
 
         // -> Seulement si la phase correpsond au décollage
-        if(liElement.dataset.phase === 'take-off') {
-          // -> On change le dataset pour ne plus entrer dans le if car on entre dans la phase de déplacement
-          liElement.dataset.phase = 'moving';
+        // if(liElement.dataset.phase === 'take-off') {
+        //   // -> On change le dataset pour ne plus entrer dans le if car on entre dans la phase de déplacement
+        //   liElement.dataset.phase = 'moving';
+        //   indicatorElement.remove();
 
-          // TODO: On calcule la place de cet élément par rapport au top de l'écran
-          const liLocationToMoveForLanding = liToMoveForLanding.offsetTop;
-          const liMovingLocation = liElement.offsetTop;
 
-          // TODO: On calcule la place de l'élément en mouvement par rapport au top de l'écran
-          const translateYForLanding = liLocationToMoveForLanding - liMovingLocation;
-          console.log(translateYForLanding)
+        //   // TODO: On calcule la place de cet élément par rapport au top de l'écran
+        //   const liLocationToMoveForLanding = liToMoveForLanding.offsetTop;
+        //   const liMovingLocation = liElement.offsetTop;
 
-          // TODO: On déplace l'élément en mouvement eu niveau de l'élément au dessus de l'indicateur
-          liElement.style.transform += ` translateY(${translateYForLanding + 32}px)`;
+        //   // TODO: On calcule la place de l'élément en mouvement par rapport au top de l'écran
+        //   const translateYForLanding = liLocationToMoveForLanding - liMovingLocation;
+        //   // console.log(translateYForLanding)
 
-        } 
+        //   // TODO: On déplace l'élément en mouvement eu niveau de l'élément au dessus de l'indicateur
+        //   // console.log(marginTopItem)
+        //   liElement.style.transform += ` translateY(${translateYForLanding + marginTopItem}px)`;
+
+        //   console.log('takeoff')
+        // } 
         
-        if(liElement.dataset.phase === 'moving') {
-          // -> On change le dataset pour ne plus entrer dans le if car on entre dans la phase d'atterrissage
-          liElement.dataset.phase = 'landing';
+        // if(liElement.dataset.phase === 'moving') {
+        //   // -> On change le dataset pour ne plus entrer dans le if car on entre dans la phase d'atterrissage
 
           
-          // TODO: On déplace tout les éléments au dessus de l'indicateur vers le haut
-          listOfLi.forEach(li => {
-            if(listOfLi.indexOf(li) <=  indexOfLiToMoveForLanding && listOfLi.indexOf(li) !== indexOfLiMoving) {
-              console.log(li.previousElementSibling.offsetHeight);
-              li.style.transform = `translateY(-${li.offsetHeight - 16}px)`;
-            }
-          })
+        //   // TODO: On déplace tout les éléments au dessus de l'indicateur vers le haut
+        //   listOfLi.forEach(li => {
+        //     // console.log(listOfLi.indexOf(li))
+        //     // console.log(listOfLi.length)
+        //     if(listOfLi.indexOf(li) <=  indexOfLiToMoveForLanding && listOfLi.indexOf(li) !== indexOfLiMoving) {
+        //       // console.log(li.previousElementSibling.offsetHeight);
+        //       li.style.transform = `translateY(-${li.offsetHeight - marginTopItem + marginTopItem}px)`;
+        //     }
 
-          // TODO: On effectue l'atterrissage
-        } 
+        //     // if(listOfLi.indexOf(li) >=  indexOfLiToMoveForLanding && listOfLi.indexOf(li) !== indexOfLiMoving && listOfLi.indexOf(li) !== indexOfLiToMoveForLanding) {
+        //     //   li.style.transform = `translateY(${li.offsetHeight - marginTopItem}px)`;
+        //     // }
+        //   })
+
+        //     liElement.dataset.phase = 'landing';
+
+        // } 
+
+        // if(liElement.dataset.phase === 'landing') {
+        //   // TODO: On effectue l'atterrissage
+        //   console.log('landing')
+
+        //   // liElement.style.transform = 'scale(1)';
+        //   // liElement.style.boxShadow = '';
+        // }
           
       }
 
@@ -506,6 +566,10 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
     // -> CSS à ajouter pour la phase de décollage et de déplacement
     liElement.style.transform = 'scale(1.05)';
     liElement.style.boxShadow = '0 0 24px rgba(32, 32, 32, .8)';
+    // -> CSS à ajouter pour corriger le problème d'affichage des unités
+    liElement.style.position = 'relative';
+    liElement.style.zIndex = '1';
+
 
 
     // const EL_LIST_LI = Array.from(EL_UL.childNodes);
