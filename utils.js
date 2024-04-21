@@ -471,18 +471,19 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
             const heightLiElement = liElement.offsetHeight;
             const totalHeightLiElement = heightLiElement + marginTopLiElement;
 
-            const itemsNumber = indicatorPosition - liElementPosition;
+            const movingDown = indicatorPosition > liElementPosition;
 
-            const movingUpward = indicatorPosition > liElementPosition;
+            const itemsNumber = movingDown ? 
+                                indicatorPosition - liElementPosition - 1
+                                :
+                                indicatorPosition - liElementPosition + 1;
 
-            const translateValue = movingUpward
-                                    ? 
-                                    totalHeightLiElement * (itemsNumber - 1)
-                                    :
-                                    totalHeightLiElement * (itemsNumber + 1);
-            console.log('translateValue', translateValue);
-            console.log('indicatorPosition', indicatorPosition);
-            console.log('liElementPosition', liElementPosition);
+
+            const translateValue = totalHeightLiElement * itemsNumber;
+
+            console.log('itemsNumber', itemsNumber);
+            // console.log('indicatorPosition', indicatorPosition);
+            // console.log('liElementPosition', liElementPosition);
                                     
 
             liElement.style.transform += ` translateY(${translateValue}px)`;
