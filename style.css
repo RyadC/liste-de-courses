@@ -343,6 +343,8 @@ li.drag-start {
 .indicateur {
   background-color: var(--bleu-200);
   width: 100%;
+  transition: all;
+  transition-duration: var(--transition-duration);
   animation: apparition-indicateur var(--transition-duration) forwards;
 }
 

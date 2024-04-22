@@ -362,6 +362,7 @@ function onLiDelete(HTMLElementToListen, listOfItems, store, keyStore) {
 function onLiDragStart(liElement) {
   return liElement.addEventListener('dragstart', (e) => {
     console.log('dragstart')
+    console.log(e)
     liElement.classList.add('drag-start');
 
     const EL_UL = liElement.closest('ul');
@@ -426,10 +427,13 @@ function onLiDragOver(liElement, indicatorElement) {
           indicatorElement.remove();
         }
       }
-
+      
       // -> Si l'élément en dragover et mon <li> en drag alors je n'affiche pas l'indicateur
     } else {
+      // liElement.dataset.moved = false;
+      
       indicatorElement.remove();
+      // liElement.classList.remove('drag-start');
     }
   })
 }
@@ -440,136 +444,106 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
 
     liElement.removeAttribute('draggable');
     liElement.classList.remove('drag-start');
-    // console.log(('dragend'));
-
-    // indicatorElement.replaceWith(liElement);
-
-    // -> Sauvegarder dans le store le changement de place
+    
     const EL_UL = liElement.closest('ul');
+    const listOfLi = Array.from(EL_UL.children);
+    const moveLiOnGrasp = listOfLi.includes(indicatorElement); 
+    
+    console.log(moveLiOnGrasp);
+    if(moveLiOnGrasp) {
+      const indicatorPosition = listOfLi.indexOf(indicatorElement);
+      const liElementPosition = listOfLi.indexOf(liElement);
+      indicatorElement.style.display = 'none';
+      // indicatorElement.remove();
+      // indicatorElement.classList.remove('indicateur');
+      // indicatorElement.style.width = 0;
 
-    // -> EventListener pour effectuer le déplacement du <li> une fois seulement que le scale et le box-shadow soit terminé (mieux que de faire un seTimeout car le délais css n'est pas garantie et la maintenance et + importante car changement du délais manuellement) 
-
-    liElement.addEventListener('transitionend', (e) => {
-      // -> Seulement si la transition concerne l'attribut 'transform'
-      if(e.propertyName === 'transform') {
-        // TODO: On récupère l'élément située au-dessus de l'indicateur 
-        const listOfLi = Array.of(...EL_UL.children);
-        const indicatorPosition = listOfLi.indexOf(indicatorElement);
-        const liElementPosition = listOfLi.indexOf(liElement);
-        
-        // const liToMoveForLanding = listOfLi.find(li => li === indicatorElement.previousElementSibling);
-        
-        
-        // const indexOfLiMoving = listOfLi.indexOf(liElement);
-        
-        
-        
-        
-        switch (liElement.dataset.phase) {
-          case 'take-off':
-            const marginTopLiElement = Number.parseInt(window.getComputedStyle(liElement).marginTop);
-            const heightLiElement = liElement.offsetHeight;
-            const totalHeightLiElement = heightLiElement + marginTopLiElement;
-
-            const movingDown = indicatorPosition > liElementPosition;
-
-            const itemsNumber = movingDown ? 
-                                indicatorPosition - liElementPosition - 1
-                                :
-                                indicatorPosition - liElementPosition + 1;
-
-
-            const translateValue = totalHeightLiElement * itemsNumber;
-
-            console.log('itemsNumber', itemsNumber);
-            // console.log('indicatorPosition', indicatorPosition);
-            // console.log('liElementPosition', liElementPosition);
-                                    
-
-            liElement.style.transform += ` translateY(${translateValue}px)`;
-
-            liElement.dataset.phase = 'moving';
+      // -> EventListener pour effectuer le déplacement du <li> une fois seulement que le scale et le box-shadow soit terminé (mieux que de faire un seTimeout car le délais css n'est pas garantie et la maintenance et + importante car changement du délais manuellement) 
+      liElement.addEventListener('transitionend', (e) => {
+        // -> Seulement si la transition concerne l'attribut 'transform'
+        if(e.propertyName === 'transform') {
+          
+          const marginTopLiElement = Number.parseInt(window.getComputedStyle(liElement).marginTop);
+          const heightLiElement = liElement.offsetHeight;
+          const totalHeightLiElement = heightLiElement + marginTopLiElement;
+          const movingDown = indicatorPosition > liElementPosition;
+          let translateValue = 0;
+  
+          
+          switch (liElement.dataset.phase) {
+            case 'take-off':
+             const itemsNumber = movingDown ? 
+                                  indicatorPosition - liElementPosition - 1
+                                  :
+                                  indicatorPosition - liElementPosition + 1;
+  
+              translateValue = totalHeightLiElement * itemsNumber;
+              
+              liElement.style.transform += ` translateY(${translateValue}px)`;
+  
+              if(movingDown) {
+                for(let i = liElementPosition + 1; i < indicatorPosition; i++) {
+                  listOfLi[i].style.transform = ` translateY(-${totalHeightLiElement}px)`;
+                }
+              } else {
+                for(let i = liElementPosition - 1; i > indicatorPosition; i--) {
+                  listOfLi[i].style.transform = ` translateY(${totalHeightLiElement}px)`;
+                }
+              }
+  
+              liElement.dataset.phase = 'moving';
+              
+              break;
+              
+            case 'moving':
+  
+              const translateYProperties = liElement.style.transform.split(' ').find(property => property.includes('translateY'));
+              // console.log(translateYProperties);
             
-
-          break;
-
-          case 'moving':
             
-          break;
+              // for(let i = indicatorPosition + 1; i < listOfLi.length; i++) {
+              //   listOfLi[i].style.transform = ` translateY(-${totalHeightIndicator}px)`;
+              // }
+              liElement.style.boxShadow = '';
+              liElement.style.transform = `scale(1) ${translateYProperties}`;
 
-          case 'landing':
-            
-          break;
-        
-          default:
+              liElement.dataset.phase = 'landing';
+                
             break;
+                
+            case 'landing':
+              
+              indicatorElement.replaceWith(liElement);
+              // liElement.removeAttribute('class');
+              listOfLi.forEach(li => {
+                  li.removeAttribute('data-phase');
+                  li.style.transition = 'none';
+                  li.style.transform = '';
+
+                  setTimeout(() => {
+                    li.removeAttribute('style');
+                  }, 0);
+                });
+              
+  
+            break;
+          
+            default:
+            break;
+          }
         }
+      });
 
-        // -> Seulement si la phase correpsond au décollage
-        // if(liElement.dataset.phase === 'take-off') {
-        //   // -> On change le dataset pour ne plus entrer dans le if car on entre dans la phase de déplacement
-        //   liElement.dataset.phase = 'moving';
-        //   indicatorElement.remove();
-
-
-        //   // TODO: On calcule la place de cet élément par rapport au top de l'écran
-        //   const liLocationToMoveForLanding = liToMoveForLanding.offsetTop;
-        //   const liMovingLocation = liElement.offsetTop;
-
-        //   // TODO: On calcule la place de l'élément en mouvement par rapport au top de l'écran
-        //   const translateYForLanding = liLocationToMoveForLanding - liMovingLocation;
-        //   // console.log(translateYForLanding)
-
-        //   // TODO: On déplace l'élément en mouvement eu niveau de l'élément au dessus de l'indicateur
-        //   // console.log(marginTopItem)
-        //   liElement.style.transform += ` translateY(${translateYForLanding + marginTopItem}px)`;
-
-        //   console.log('takeoff')
-        // } 
-        
-        // if(liElement.dataset.phase === 'moving') {
-        //   // -> On change le dataset pour ne plus entrer dans le if car on entre dans la phase d'atterrissage
-
-          
-        //   // TODO: On déplace tout les éléments au dessus de l'indicateur vers le haut
-        //   listOfLi.forEach(li => {
-        //     // console.log(listOfLi.indexOf(li))
-        //     // console.log(listOfLi.length)
-        //     if(listOfLi.indexOf(li) <=  indexOfLiToMoveForLanding && listOfLi.indexOf(li) !== indexOfLiMoving) {
-        //       // console.log(li.previousElementSibling.offsetHeight);
-        //       li.style.transform = `translateY(-${li.offsetHeight - marginTopItem + marginTopItem}px)`;
-        //     }
-
-        //     // if(listOfLi.indexOf(li) >=  indexOfLiToMoveForLanding && listOfLi.indexOf(li) !== indexOfLiMoving && listOfLi.indexOf(li) !== indexOfLiToMoveForLanding) {
-        //     //   li.style.transform = `translateY(${li.offsetHeight - marginTopItem}px)`;
-        //     // }
-        //   })
-
-        //     liElement.dataset.phase = 'landing';
-
-        // } 
-
-        // if(liElement.dataset.phase === 'landing') {
-        //   // TODO: On effectue l'atterrissage
-        //   console.log('landing')
-
-        //   // liElement.style.transform = 'scale(1)';
-        //   // liElement.style.boxShadow = '';
-        // }
-          
-      }
-
-    })
-
-    // -> Attribut HTML ajouté pour gérer les différentes phases (décollage, déplacement, atterrissage)
-    liElement.dataset.phase = 'take-off';
- 
-    // -> CSS à ajouter pour la phase de décollage et de déplacement
-    liElement.style.transform = 'scale(1.05)';
-    liElement.style.boxShadow = '0 0 24px rgba(32, 32, 32, .8)';
-    // -> CSS à ajouter pour corriger le problème d'affichage des unités
-    liElement.style.position = 'relative';
-    liElement.style.zIndex = '1';
+      // -> Attribut HTML ajouté pour gérer les différentes phases (décollage, déplacement, atterrissage)
+      liElement.dataset.phase = 'take-off';
+      // -> CSS à ajouter pour la phase de décollage et de déplacement
+      liElement.style.transform = 'scale(1.05)';
+      liElement.style.boxShadow = '0 0 24px rgba(32, 32, 32, .8)';
+      // -> CSS à ajouter pour corriger le problème d'affichage des unités
+      liElement.style.position = 'relative';
+      liElement.style.zIndex = '1';
+    }
+      
 
 
 
@@ -594,7 +568,7 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
 
 
     // saveToStore(store, keyStore, newListOfItems);
-    console.log(store);
+    // console.log(store);
   });
 
 
@@ -611,7 +585,7 @@ function onBtnGrap(HTMLElementToListen, indicatorElement) {
 
   HTMLElementToListen.addEventListener('mouseup', (e) => {
     // console.log(e);
-    // liElement.removeAttribute('draggable');
+    EL_LI.removeAttribute('draggable');
     // console.log(EL_INDICATOR)
     indicatorElement.remove();
 
