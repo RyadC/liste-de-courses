@@ -377,6 +377,8 @@ function onLiDragStart(liElement) {
 
 function onLiDragOver(liElement, indicatorElement) {
   liElement.addEventListener('dragover', (e) => {
+    // Remettre la classe 'indicateur' supprimer dans l'event du dragend pour faire disparaitre l'indicateur
+    indicatorElement.classList.add('indicateur')
     const isDragLi = liElement.classList.contains('drag-start');
     if(!isDragLi) {
       const locationOfDrag = e.offsetY; 
@@ -441,44 +443,45 @@ function onLiDragOver(liElement, indicatorElement) {
 
 function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, indexOfLi) {
   liElement.addEventListener('dragend', (e) => {
-
+    // debugger;
     liElement.removeAttribute('draggable');
     liElement.classList.remove('drag-start');
     
     const EL_UL = liElement.closest('ul');
-    const listOfLi = Array.from(EL_UL.children);
+    let listOfLi = Array.from(EL_UL.children);
     const moveLiOnGrasp = listOfLi.includes(indicatorElement); 
+    indicatorElement.style.display = 'none';
     
-    console.log(moveLiOnGrasp);
     if(moveLiOnGrasp) {
-      const indicatorPosition = listOfLi.indexOf(indicatorElement);
-      const liElementPosition = listOfLi.indexOf(liElement);
-      indicatorElement.style.display = 'none';
-      // indicatorElement.remove();
-      // indicatorElement.classList.remove('indicateur');
-      // indicatorElement.style.width = 0;
-
+      
       // -> EventListener pour effectuer le déplacement du <li> une fois seulement que le scale et le box-shadow soit terminé (mieux que de faire un seTimeout car le délais css n'est pas garantie et la maintenance et + importante car changement du délais manuellement) 
-      liElement.addEventListener('transitionend', (e) => {
+      function animationHandler(e) {
+        // debugger;
+        listOfLi = Array.from(EL_UL.children);
+        const indicatorPosition = listOfLi.indexOf(indicatorElement);
+        const liElementPosition = listOfLi.indexOf(liElement);
         // -> Seulement si la transition concerne l'attribut 'transform'
+
         if(e.propertyName === 'transform') {
           
-          const marginTopLiElement = Number.parseInt(window.getComputedStyle(liElement).marginTop);
-          const heightLiElement = liElement.offsetHeight;
-          const totalHeightLiElement = heightLiElement + marginTopLiElement;
-          const movingDown = indicatorPosition > liElementPosition;
-          let translateValue = 0;
-  
           
           switch (liElement.dataset.phase) {
             case 'take-off':
-             const itemsNumber = movingDown ? 
+              liElement.dataset.phase = 'moving';
+
+              const marginTopLiElement = Number.parseInt(window.getComputedStyle(liElement).marginTop);
+              const heightLiElement = liElement.offsetHeight;
+              const totalHeightLiElement = heightLiElement + marginTopLiElement;
+              const movingDown = indicatorPosition > liElementPosition;
+              let translateValue = 0;
+
+              const itemsNumber = movingDown ? 
                                   indicatorPosition - liElementPosition - 1
                                   :
                                   indicatorPosition - liElementPosition + 1;
   
               translateValue = totalHeightLiElement * itemsNumber;
-              
+
               liElement.style.transform += ` translateY(${translateValue}px)`;
   
               if(movingDown) {
@@ -490,33 +493,26 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
                   listOfLi[i].style.transform = ` translateY(${totalHeightLiElement}px)`;
                 }
               }
-  
-              liElement.dataset.phase = 'moving';
-              
               break;
               
             case 'moving':
-  
-              const translateYProperties = liElement.style.transform.split(' ').find(property => property.includes('translateY'));
-              // console.log(translateYProperties);
-            
-            
-              // for(let i = indicatorPosition + 1; i < listOfLi.length; i++) {
-              //   listOfLi[i].style.transform = ` translateY(-${totalHeightIndicator}px)`;
-              // }
-              liElement.style.boxShadow = '';
-              liElement.style.transform = `scale(1) ${translateYProperties}`;
-
+              console.log('move')
               liElement.dataset.phase = 'landing';
-                
+
+              const translateYProperties = liElement.style.transform.split(' ').find(property => property.includes('translateY'));
+
+              liElement.style.boxShadow = '';
+              liElement.style.transform = `${translateYProperties}`;
             break;
                 
             case 'landing':
-              
+              liElement.removeAttribute('data-phase');
+              liElement.removeEventListener('transitionend' ,animationHandler);
+
               indicatorElement.replaceWith(liElement);
-              // liElement.removeAttribute('class');
               listOfLi.forEach(li => {
-                  li.removeAttribute('data-phase');
+                  li.removeAttribute('class');
+                  // li.removeAttribute('data-phase');
                   li.style.transition = 'none';
                   li.style.transform = '';
 
@@ -524,21 +520,22 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
                     li.removeAttribute('style');
                   }, 0);
                 });
-              
-  
             break;
           
             default:
             break;
           }
         }
-      });
+      }
+
+      liElement.addEventListener('transitionend', animationHandler);
 
       // -> Attribut HTML ajouté pour gérer les différentes phases (décollage, déplacement, atterrissage)
       liElement.dataset.phase = 'take-off';
       // -> CSS à ajouter pour la phase de décollage et de déplacement
       liElement.style.transform = 'scale(1.05)';
       liElement.style.boxShadow = '0 0 24px rgba(32, 32, 32, .8)';
+      liElement.style.transition = 'box-shadow transform';
       // -> CSS à ajouter pour corriger le problème d'affichage des unités
       liElement.style.position = 'relative';
       liElement.style.zIndex = '1';
