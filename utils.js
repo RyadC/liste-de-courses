@@ -1,7 +1,7 @@
 
 function removeUnnecessarySpaces(inputValue) {
   // Enlever les espaces de début et de fin
-  let inputValueTrimed = inputValue.trim();
+  const inputValueTrimed = inputValue.trim();
 
   /*
   // Renvoie un tableau de la valeur séparée selon les espaces trouvés 
@@ -12,20 +12,20 @@ function removeUnnecessarySpaces(inputValue) {
   */
 
   // Forme une string en remplacant les espaces multiples par un seul espace
-  let inputValueWithoutMultipleSpaces = inputValueTrimed.replaceAll(/( )+/g, ' ');
+  const inputValueWithoutMultipleSpaces = inputValueTrimed.replaceAll(/( )+/g, ' ');
 
   return inputValueWithoutMultipleSpaces;
 }
 
 function capitalizeFirstLetter(value) {
     // Récupère la 1ère lettre pour la mettre en majuscule
-    let firstLetterInCapital = value[0].toUpperCase();
+    const firstLetterInCapital = value[0].toUpperCase();
 
     // Récupère le reste de la string
-    let restOfWord = value.slice(1)
+    const restOfWord = value.slice(1);
   
     // Concatène la string entière afin d'avoir une string commençant par une majuscule
-    let inputValueCapitalize = firstLetterInCapital + restOfWord
+    const inputValueCapitalize = firstLetterInCapital + restOfWord;
 
     return inputValueCapitalize;
 }
@@ -90,11 +90,6 @@ function extractData(source, htmlDocument) {
     //-> Sinon, il s'agit du nom
     product.name = arrayValueSplit.slice(0).join(' ');
   };
-
-  // //console.log(arrayValueSplit)
-  // //console.log(unityOfProduct);
-  // //console.log(quantityOfProduct);
-  // //console.log(nameOfProduct);
 
   return product;
 }
@@ -163,7 +158,6 @@ function switchBetweenPandInputInDOM(newElement, oldElement) {
   
   newElement.textContent = oldElement.value;
   oldElement.replaceWith(newElement);
-  // console.log(elementToReplace);
 }
 
 /**
@@ -180,7 +174,6 @@ function blurOnEnterPressHandler(e) {
  * @param {*} inputType 
  */
 function transformParagraphToInputHandler(pElement, inputType) {
-  // console.log('dans le focus')
   const EL_P = pElement;
   const EL_NEW_INPUT = transformPElementtoInput(EL_P, inputType);
   EL_NEW_INPUT.focus();
@@ -229,9 +222,8 @@ function findIndexOfItem(HTMLElementToListen) {
 
 
 function saveToStore(store, keyStore, listeOfUserItems) {
-  let stringListOfUserItems = JSON.stringify(listeOfUserItems);
+  const stringListOfUserItems = JSON.stringify(listeOfUserItems);
   store.setItem(keyStore, stringListOfUserItems);
-  console.log(store)
 }
 
 
@@ -242,19 +234,19 @@ function saveToStore(store, keyStore, listeOfUserItems) {
  */
 function sendListByEmail(email, listOfItems ) {
   let url = '';
-  let subject = 'Liste%20de%20courses';
+  const subject = 'Liste%20de%20courses';
   let body = 'Voici%20la%20liste%20de%20course%20,%20n%27oublie%20rien%20stp%20%3A%0A%0A';
 
   listOfItems.forEach((item) => {
     let formatedNameForURL = item.name;
-    let brokendownName = item.name.split(' ');
+    const brokendownName = item.name.split(' ');
 
     if(brokendownName.length > 1) {
       formatedNameForURL = brokendownName.join('%20');
     }
 
     body += `-%20${formatedNameForURL}%20(${item.quantity}%20${item.unity})%0D%0A`;
-  })
+  });
 
   url = `mailto:${email}?subject=${subject}&body=${body}`;
 
@@ -268,8 +260,6 @@ function sendListByEmail(email, listOfItems ) {
  * 
  */
 function blurHandler(e, elementToReplace, substituteElement) {
-  // console.dir(Array.from(elementToReplace.parentElement.parentElement.children).indexOf(elementToReplace.parentElement))
-  // console.log(sub.parentElement)
   switchBetweenPandInputInDOM(elementToReplace, substituteElement);
   
   return elementToReplace;
@@ -361,8 +351,6 @@ function onLiDelete(HTMLElementToListen, listOfItems, store, keyStore) {
 
 function onLiDragStart(liElement) {
   return liElement.addEventListener('dragstart', (e) => {
-    console.log('dragstart')
-    console.log(e)
     liElement.classList.add('drag-start');
 
     const EL_UL = liElement.closest('ul');
@@ -370,21 +358,21 @@ function onLiDragStart(liElement) {
     // -> Pour ajouter les :: before sur les li afin d'afficher l'indicateur meme quand on passe entre deux <li> sans survoler les <li> (en passant sur le côté) car entre les deux se trouve un ::before
     EL_UL.classList.add('drag-en-cours');
     const EL_LIST_LI = Array.from(EL_UL.childNodes);
-  })
+  });
 }
 
 
 
 function onLiDragOver(liElement, indicatorElement) {
   liElement.addEventListener('dragover', (e) => {
-    // Remettre la classe 'indicateur' supprimer dans l'event du dragend pour faire disparaitre l'indicateur
-    indicatorElement.classList.add('indicateur')
+    // Remettre la classe 'indicateur' supprimer dans l'event du dragend pour faire disparaitre l'indicateur et supprimer l'attribut style qui met le 'display' à 'none'
+    console.log('dragover')
+    indicatorElement.removeAttribute('style');
+    indicatorElement.classList.add('indicateur');
     const isDragLi = liElement.classList.contains('drag-start');
     if(!isDragLi) {
       const locationOfDrag = e.offsetY; 
       const middleHeightOfLi = liElement.clientHeight / 2;
-      // console.log('middleHeightOfLi : ', middleHeightOfLi);
-      // console.log('locationOfDrag : ', locationOfDrag);
 
       // -> Si le drag est en dessous de la moitié de l'élément dragover
       if(locationOfDrag > middleHeightOfLi) {
@@ -432,18 +420,15 @@ function onLiDragOver(liElement, indicatorElement) {
       
       // -> Si l'élément en dragover et mon <li> en drag alors je n'affiche pas l'indicateur
     } else {
-      // liElement.dataset.moved = false;
       
       indicatorElement.remove();
-      // liElement.classList.remove('drag-start');
     }
-  })
+  });
 }
 
 
 function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, indexOfLi) {
   liElement.addEventListener('dragend', (e) => {
-    // debugger;
     liElement.removeAttribute('draggable');
     liElement.classList.remove('drag-start');
     
@@ -496,7 +481,6 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
               break;
               
             case 'moving':
-              console.log('move')
               liElement.dataset.phase = 'landing';
 
               const translateYProperties = liElement.style.transform.split(' ').find(property => property.includes('translateY'));
@@ -520,6 +504,26 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
                     li.removeAttribute('style');
                   }, 0);
                 });
+
+                const EL_LIST_LI = Array.from(EL_UL.childNodes);
+                const newListOfItems = [];
+
+              EL_LIST_LI.forEach((li) => {
+                const EL_P_NOM = li.querySelector('.nom');
+                const EL_P_QUANTITY = li.querySelector('.quantite');
+                const EL_SELECT = li.querySelector('.unite');
+
+                newListOfItems.push({
+                  name: EL_P_NOM.textContent,
+                  quantity: EL_P_QUANTITY.textContent,
+                  unity: EL_SELECT.value.toLowerCase(),
+                });
+              });
+            
+              console.log(newListOfItems);
+              saveToStore(store, keyStore, newListOfItems);
+
+
             break;
           
             default:
@@ -547,16 +551,18 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
     // const EL_LIST_LI = Array.from(EL_UL.childNodes);
     // const newListOfItems = [];
 
+    // console.log(EL_LIST_LI);
+
     // EL_LIST_LI.forEach((li) => {
     //   const EL_P_NOM = li.querySelector('.nom');
     //   const EL_P_QUANTITY = li.querySelector('.quantite');
     //   const EL_SELECT = li.querySelector('.unite');
 
-    //   newListOfItems.push({
-    //     name: EL_P_NOM.textContent,
-    //     quantity: EL_P_QUANTITY.textContent,
-    //     unity: EL_SELECT.value.toLowerCase(),
-    //   })
+      // newListOfItems.push({
+      //   name: EL_P_NOM.textContent,
+      //   quantity: EL_P_QUANTITY.textContent,
+      //   unity: EL_SELECT.value.toLowerCase(),
+      // })
     // });
 
 
@@ -565,7 +571,6 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
 
 
     // saveToStore(store, keyStore, newListOfItems);
-    // console.log(store);
   });
 
 
@@ -581,9 +586,7 @@ function onBtnGrap(HTMLElementToListen, indicatorElement) {
   });
 
   HTMLElementToListen.addEventListener('mouseup', (e) => {
-    // console.log(e);
     EL_LI.removeAttribute('draggable');
-    // console.log(EL_INDICATOR)
     indicatorElement.remove();
 
   });
@@ -633,6 +636,6 @@ export {
   saveToStore,
   sendListByEmail,
   eventsHandler,
-}
+};
 
 // 5 kg pommes
