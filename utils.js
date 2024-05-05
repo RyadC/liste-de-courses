@@ -11,67 +11,73 @@ import {
 /**********************/
 
 
+// DONE : Refacto
+/**
+ * Remove the spaces on beginning and ending the string
+ * @param {string} value A string to remove spaces on beginning and ending
+ * @returns {string} The formated value
+ */
+function removeUnnecessarySpaces(value) {
+  // -> Enlever les espaces de début et de fin
+  const trimedValue = value.trim();
 
+  // -> Forme une string en remplacant les espaces multiples par un seul espace
+  const valueWithoutMultipleSpaces = trimedValue.replaceAll(/( )+/g, ' ');
 
-function removeUnnecessarySpaces(inputValue) {
-  // Enlever les espaces de début et de fin
-  const inputValueTrimed = inputValue.trim();
-
-  /*
-  // Renvoie un tableau de la valeur séparée selon les espaces trouvés 
-  let arraySplitInputValueTrimed = inputValueTrimed.split(/( )+/);
-
-  // Forme une string en remplacant les espaces multiples par un seul espace
-  let inputValueWithoutMultipleSpaces = arraySplitInputValueTrimed.join('');
-  */
-
-  // Forme une string en remplacant les espaces multiples par un seul espace
-  const inputValueWithoutMultipleSpaces = inputValueTrimed.replaceAll(/( )+/g, ' ');
-
-  return inputValueWithoutMultipleSpaces;
+  return valueWithoutMultipleSpaces;
 }
 
-function capitalizeFirstLetter(value) {
-    // Récupère la 1ère lettre pour la mettre en majuscule
+
+// DONE : Refacto
+/**
+ * Capitalize a string value
+ * @param {string} value A string to capitalize
+ * @returns {string} The value in capitalize format
+ */
+function capitalizeValue(value) {
+    // -> Récupère la 1ère lettre pour la mettre en majuscule
     const firstLetterInCapital = value[0].toUpperCase();
 
-    // Récupère le reste de la string
+    // -> Récupère le reste de la string
     const restOfWord = value.slice(1);
   
-    // Concatène la string entière afin d'avoir une string commençant par une majuscule
+    // -> Concatène la string entière afin d'avoir une string commençant par une majuscule
     const inputValueCapitalize = firstLetterInCapital + restOfWord;
 
     return inputValueCapitalize;
 }
 
+
+// DONE : Refacto
 /**
- * Extract the data to create an object with them
- * @param {string} source is the value from the input
- * @param {Document} htmlDocument is an HTML document to retrieve the default values ​​of HTML elements  
- * @returns {object} product with params : name, quantity, unity
+ * Extract the user data to create an object with them
+ * @param {string} source The value from the input
+ * @param {Document} HTMLDocument The HTML document to retrieve the default values ​​of HTML elements  
+ * @returns {object} The product object { name, quantity, unity }
  */
-function extractData(source, htmlDocument) {
+function extractData(source, HTMLDocument) {
   // -> Mettre en minuscule la valeur de l'input
   const value = source.toLowerCase();
 
   // -> Déclarer les constantes par défaut
-  const DEFAULT_QUANTITY = Number(htmlDocument.querySelector('.quantite').textContent); 
-  const DEFAULT_UNITY = htmlDocument.querySelector('.unite').value; 
+  const itemQuantityElement = HTMLDocument.querySelector('.quantite');
+  const itemSelectElement = HTMLDocument.querySelector('.unite');
+
+  const DEFAULT_QUANTITY = Number(itemQuantityElement.textContent); 
+  const DEFAULT_UNITY = itemSelectElement.value; 
 
   //-> Retirer les espaces inutiles éventuels
-  const inputValueWithoutSpaces = removeUnnecessarySpaces(value);
+  const valueWithoutSpaces = removeUnnecessarySpaces(value);
 
   //-> Récupérer la quantité, l'unité et le nom du produit selon les données fournies par l'utilisateur
-  const arrayValueSplit = inputValueWithoutSpaces.split(' ');
+  const data = valueWithoutSpaces.split(' ');
 
-  const itemSelectElement = htmlDocument.querySelector('.unite');
-  const EL_OPTIONS = itemSelectElement.children;
+  const optionElements = itemSelectElement.children;
   
   // -> On ajoute dynamiquement la liste des unités selon les éléments HTML pour éviter l'ajout manuel en JS (réduction de maintenance = €€€)
-  // // const LIST_OF_UNITIES = ['u', 'g', 'kg', 'l'];
   const LIST_OF_UNITIES = [];
 
-  for(const option of EL_OPTIONS) {
+  for(const option of optionElements) {
     LIST_OF_UNITIES.push(option.value.toLowerCase());
   };
 
@@ -83,40 +89,42 @@ function extractData(source, htmlDocument) {
   
 
   //-> La 1ère valeur est-elle un nombre ?
-  if(Number(arrayValueSplit[0])){
+  if(Number(data[0])){
     //-> Si oui, Je récupère le nombre en tant que quantité
-    product.quantity = Number(arrayValueSplit[0]);
+    product.quantity = Number(data[0]);
     
     // -> Puis deux choix possibles : le 2nd est soit le nom ou la quantité
       //-> On regarde s'il s'agit de la quantité
-    if(LIST_OF_UNITIES.includes(arrayValueSplit[1])) {
+    if(LIST_OF_UNITIES.includes(data[1])) {
       //-> Si oui alors on récupère l'unité en 2ème position et le nom du produit en 3ème position
-      product.unity = arrayValueSplit[1];
+      product.unity = data[1];
       //-> On récupère le reste du tableau puis on concatène pour les produits avec des noms composés : fraises des bois
-      product.name = arrayValueSplit.slice(2).join(' ');
+      product.name = data.slice(2).join(' ');
       
     } else {
       //-> Sinon, c'est qu'il n'y a pas d'unité de donnée 
-      product.name = arrayValueSplit.slice(1).join(' ');
+      product.name = data.slice(1).join(' ');
     };
 
   } else {
     //-> Sinon, il s'agit du nom
-    product.name = arrayValueSplit.slice(0).join(' ');
+    product.name = data.slice(0).join(' ');
   };
 
   return product;
 }
 
+
+// DONE : Refacto
 /**
- * Create a <li> element configured with user data
- * @param {Document} htmlDocument is an HTML document to retrieve the <li> element to copy
- * @param {object} product is the object product from user data
- * @returns {object} <li> html element
+ * Create an <li> element configured with the user data
+ * @param {Document} HTMLDocument The HTML document to retrieve the <li> element to copy
+ * @param {object} product The product object from user data
+ * @returns {object} An HTML `<li>` element
  */
-function createItemElement(htmlDocument, product) {
+function createItemElement(HTMLDocument, product) {
   //-> Cloner le template pour injecter un nouvel <li>
-  const cloneItemElement = htmlDocument.cloneNode(true).children[0];
+  const cloneItemElement = HTMLDocument.cloneNode(true).children[0];
 
   //-> Injecter les valeurs de l'input formaté
     //-> le nom du produit dans le <p.nom> enfant du <li>
@@ -138,49 +146,16 @@ function createItemElement(htmlDocument, product) {
   return cloneItemElement;
 }
 
+
+// DONE : Refacto
 /**
- * Transform an HTML element to an input in the DOM
- * @param {HTMLElement} HTMLElement 
- * @param {string} inputType The type attribut of the input
- * @returns {HTMLElement} The input was created
- */
-function transformPElementtoInput(PElement, inputType) {
-  const valuePElement = PElement.textContent;
-
-  const EL_NEW_INPUT =  document.createElement('input');
-  EL_NEW_INPUT.type = inputType;
-  
-  if(inputType === 'number') {
-    EL_NEW_INPUT.min = "1";
-    EL_NEW_INPUT.max = "999";
-  };
-
-  EL_NEW_INPUT.className = PElement.className;
-  EL_NEW_INPUT.value = valuePElement;
-  
-  PElement.replaceWith(EL_NEW_INPUT);
-
-  return EL_NEW_INPUT;
-}
-
-/**
- * Switch between two element in the DOM and retrieve their text value
- * @param {HTMLElement} elementToReplace 
- * @param {HTMLElement} substituteElement 
- */
-function switchBetweenPandInputInDOM(newElement, oldElement) {
-  
-  newElement.textContent = oldElement.value;
-  oldElement.replaceWith(newElement);
-}
-
-/**
- * 
- * @param {*} e 
+ *  Triggers the 'blur' method on the HTML target element on 'Enter' or 'NumpadEnter' press 
+ * @param {KeyboardEvent} e The KeyboardEvent 
  */
 function blurOnEnterPressHandler(e) {
-  e.code === 'Enter' ? e.target.blur() : '';
+  e.code === 'Enter' || e.code === 'NumpadEnter' ? e.target.blur() : '';
 }
+
 
 // DONE : Refacto
 /**
@@ -205,6 +180,7 @@ function updatePropertyItemOfItemsArray(updateDependencies) {
   itemsList[itemIndex][propertyToChange] = newValue;
 }
 
+
 // DONE : Refacto
 /**
  * Remove the item from the item objects array
@@ -218,6 +194,7 @@ function deleteItemOfItemsArray(item, itemsList) {
   // -> On l'item <li> de la liste 
   itemsList.splice(itemIndex, 1);
 }
+
 
 // DONE : Refacto
 /**
@@ -235,6 +212,7 @@ function findIndexOfItem(item) {
   return itemIndex;
 }
 
+
 // DONE : Refacto
 /**
  * Save the item objects in the store 
@@ -246,6 +224,7 @@ function saveToStore(store, KEY_STORE, itemsList) {
   const itemsListJSON = JSON.stringify(itemsList);
   store.setItem(KEY_STORE, itemsListJSON);
 }
+
 
 // DONE : Refacto
 /**
@@ -635,7 +614,7 @@ function eventsHandler(dependencies) {
 
 
 export {
-  capitalizeFirstLetter,
+  capitalizeValue,
   extractData,
   createItemElement,
   saveToStore,
