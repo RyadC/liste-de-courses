@@ -1,3 +1,17 @@
+/****** IMPORTS *******/
+/** DOM Elements **/
+import {
+  formElement,
+  addItemElement,
+  templateElement,
+  listElement,
+  indicatorElement,
+} from './dom-elements.js'
+
+/**********************/
+
+
+
 
 function removeUnnecessarySpaces(inputValue) {
   // Enlever les espaces de début et de fin
@@ -50,8 +64,8 @@ function extractData(source, htmlDocument) {
   //-> Récupérer la quantité, l'unité et le nom du produit selon les données fournies par l'utilisateur
   const arrayValueSplit = inputValueWithoutSpaces.split(' ');
 
-  const EL_SELECT = htmlDocument.querySelector('.unite');
-  const EL_OPTIONS = EL_SELECT.children;
+  const itemSelectElement = htmlDocument.querySelector('.unite');
+  const EL_OPTIONS = itemSelectElement.children;
   
   // -> On ajoute dynamiquement la liste des unités selon les éléments HTML pour éviter l'ajout manuel en JS (réduction de maintenance = €€€)
   // // const LIST_OF_UNITIES = ['u', 'g', 'kg', 'l'];
@@ -100,28 +114,28 @@ function extractData(source, htmlDocument) {
  * @param {object} product is the object product from user data
  * @returns {object} <li> html element
  */
-function createLiHtmlItem(htmlDocument, product) {
+function createItemElement(htmlDocument, product) {
   //-> Cloner le template pour injecter un nouvel <li>
-  const EL_CLONE_LI = htmlDocument.cloneNode(true).children[0];
+  const cloneItemElement = htmlDocument.cloneNode(true).children[0];
 
   //-> Injecter les valeurs de l'input formaté
     //-> le nom du produit dans le <p.nom> enfant du <li>
-  const EL_NAME_LI = EL_CLONE_LI.querySelector('.nom');
-  EL_NAME_LI.textContent = product.name;
+  const itemNameElement = cloneItemElement.querySelector('.nom');
+  itemNameElement.textContent = product.name;
   
     //-> la quantité dans le <p.quantite> enfant du <li>
-  const EL_QUANTITY_LI = EL_CLONE_LI.querySelector('.quantite');
-  EL_QUANTITY_LI.textContent = product.quantity;
+  const itemQuantityElement = cloneItemElement.querySelector('.quantite');
+  itemQuantityElement.textContent = product.quantity;
   
   //-> l'unité dans l'option du <select>
-  const EL_SELECT_LI = EL_CLONE_LI.querySelector('.unite');
-  for(const option of EL_SELECT_LI) {
+  const itemSelectElement = cloneItemElement.querySelector('.unite');
+  for(const option of itemSelectElement) {
     if(option.value.toLowerCase() === product.unity) {
       option.selected = true;
-    };
-  };
+    }
+  }
 
-  return EL_CLONE_LI;
+  return cloneItemElement;
 }
 
 /**
@@ -173,40 +187,40 @@ function blurOnEnterPressHandler(e) {
  * @param {*} e 
  * @param {*} inputType 
  */
-function transformParagraphToInputHandler(pElement, inputType) {
-  const EL_P = pElement;
-  const EL_NEW_INPUT = transformPElementtoInput(EL_P, inputType);
-  EL_NEW_INPUT.focus();
+// function transformParagraphToInputHandler(pElement, inputType) {
+//   const EL_P = pElement;
+//   const EL_NEW_INPUT = transformPElementtoInput(EL_P, inputType);
+//   EL_NEW_INPUT.focus();
 
-  return {
-    EL_NEW_INPUT,
-    EL_P
-  };
+//   return {
+//     EL_NEW_INPUT,
+//     EL_P
+//   };
   
-  // EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
+//   // EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
 
 
-  // // EL_NEW_INPUT.addEventListener('blur', () => {
-  // //   switchBetweenPandInputInDOM(EL_P, EL_NEW_INPUT);
-  // // });
-  // EL_NEW_INPUT.addEventListener('blur', (e) => blurHandler(e, EL_P, EL_NEW_INPUT));
-}
+//   // // EL_NEW_INPUT.addEventListener('blur', () => {
+//   // //   switchBetweenPandInputInDOM(EL_P, EL_NEW_INPUT);
+//   // // });
+//   // EL_NEW_INPUT.addEventListener('blur', (e) => blurHandler(e, EL_P, EL_NEW_INPUT));
+// }
 
 
-function changeValueItemInArrayOfItems(item, listOfItems, propertyToChange, newValue) {
+function changeValueItemInArrayOfItems(item, itemsList, propertyToChange, newValue) {
   // -> On récupère l'index de l'élément <li> dans la liste des <li>
   const itemIndexInUlElement = findIndexOfItem(item);
 
   // -> On change la valeur de l'item <li>, selon la modification de l'utilisateur, dans le tableau
-  listOfItems[itemIndexInUlElement][propertyToChange] = newValue;
+  itemsList[itemIndexInUlElement][propertyToChange] = newValue;
 }
 
-function deleteItemInArrayOfItems(item, listOfItems) {
+function deleteItemInArrayOfItems(item, itemsList) {
   // -> On récupère l'index de l'élément <li> dans la liste des <li>
   const itemIndexInUlElement = findIndexOfItem(item);
 
   // -> On change la valeur de l'item <li>, selon la modification de l'utilisateur, dans le tableau
-  listOfItems.splice(itemIndexInUlElement, 1);
+  itemsList.splice(itemIndexInUlElement, 1);
 }
 
 
@@ -221,23 +235,23 @@ function findIndexOfItem(HTMLElementToListen) {
 }
 
 
-function saveToStore(store, keyStore, listeOfUserItems) {
+function saveToStore(store, KEY_STORE, listeOfUserItems) {
   const stringListOfUserItems = JSON.stringify(listeOfUserItems);
-  store.setItem(keyStore, stringListOfUserItems);
+  store.setItem(KEY_STORE, stringListOfUserItems);
 }
 
 
 /**
  * Opens the email manager with the list of products in the body of the email to the desired recipient
  * @param {string} email The recipient who should receive the email. An email address is expected
- * @param {array} listOfItems An array that contains the list of items object 
+ * @param {array} itemsList An array that contains the list of items object 
  */
-function sendListByEmail(email, listOfItems ) {
+function sendListByEmail(email, itemsList ) {
   let url = '';
   const subject = 'Liste%20de%20courses';
   let body = 'Voici%20la%20liste%20de%20course%20,%20n%27oublie%20rien%20stp%20%3A%0A%0A';
 
-  listOfItems.forEach((item) => {
+  itemsList.forEach((item) => {
     let formatedNameForURL = item.name;
     const brokendownName = item.name.split(' ');
 
@@ -259,83 +273,83 @@ function sendListByEmail(email, listOfItems ) {
 /**
  * 
  */
-function blurHandler(e, elementToReplace, substituteElement) {
-  switchBetweenPandInputInDOM(elementToReplace, substituteElement);
+// function blurHandler(e, elementToReplace, substituteElement) {
+//   switchBetweenPandInputInDOM(elementToReplace, substituteElement);
   
-  return elementToReplace;
-}
+//   return elementToReplace;
+// }
 
 
-function onParagFocus(HTMLElementToListen, listOfItems, store, keyStore) {
+function onItemNameOrQuantityFocus(HTMLElementToListen, itemsList, store, KEY_STORE) {
   HTMLElementToListen.addEventListener('focus', (e) => {
-      const valuePElement = HTMLElementToListen.textContent;
+      const textValue = HTMLElementToListen.textContent;
 
-      const EL_NEW_INPUT =  document.createElement('input');
+      const inputElement =  document.createElement('input');
 
       let propertyToChange = '';
 
-      if(e.target.classList.contains('nom')) {
-        EL_NEW_INPUT.type = 'text';
+      if(HTMLElementToListen.contains('nom')) {
+        inputElement.type = 'text';
         propertyToChange = 'name';
       } else {
-        EL_NEW_INPUT.type = 'number';
-        EL_NEW_INPUT.min = '1';
-        EL_NEW_INPUT.max = '999';
+        inputElement.type = 'number';
+        inputElement.min = '1';
+        inputElement.max = '999';
         propertyToChange = 'quantity';
       }
 
-      EL_NEW_INPUT.className = HTMLElementToListen.className;
-      EL_NEW_INPUT.value = valuePElement;
+      inputElement.className = HTMLElementToListen.className;
+      inputElement.value = textValue;
       
-      HTMLElementToListen.replaceWith(EL_NEW_INPUT);
+      HTMLElementToListen.replaceWith(inputElement);
       
-      EL_NEW_INPUT.focus();
+      inputElement.focus();
 
-      EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
+      inputElement.addEventListener('keypress', blurOnEnterPressHandler);
 
-      EL_NEW_INPUT.addEventListener('blur', (e) => {
+      inputElement.addEventListener('blur', (e) => {
         // -> On récupère la nouvelle valeur entrée par l'utilisateur
-        const newInputValue = EL_NEW_INPUT.value;
+        const newInputValue = inputElement.value;
 
         // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
         HTMLElementToListen.textContent = newInputValue;
 
         // -> On remplace le <input> par le <p>
-        EL_NEW_INPUT.replaceWith(HTMLElementToListen);
+        inputElement.replaceWith(HTMLElementToListen);
 
         // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
-        changeValueItemInArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newInputValue);
+        changeValueItemInArrayOfItems(HTMLElementToListen, itemsList, propertyToChange, newInputValue);
         
         // -> On sauvegarde dans le store
-        saveToStore(store, keyStore, listOfItems);
+        saveToStore(store, KEY_STORE, itemsList);
       });
     });
 }
 
 
-function onSelectChange(HTMLElementToListen, listOfItems, store, keyStore) {
+function onSelectChange(HTMLElementToListen, itemsList, store, KEY_STORE) {
   HTMLElementToListen.addEventListener('change', (e) => {
     const propertyToChange = 'unity';
     const newSelectValue = e.srcElement.value;
   
     // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
-    changeValueItemInArrayOfItems(HTMLElementToListen, listOfItems, propertyToChange, newSelectValue);
+    changeValueItemInArrayOfItems(HTMLElementToListen, itemsList, propertyToChange, newSelectValue);
   
     // -> On sauvegarde dans le store
-    saveToStore(store, keyStore, listOfItems);
+    saveToStore(store, KEY_STORE, itemsList);
   });
 }
 
 
-function onLiDelete(HTMLElementToListen, listOfItems, store, keyStore) {
+function onLiDelete(HTMLElementToListen, itemsList, store, KEY_STORE) {
   const EL_LI = HTMLElementToListen.closest('li');
 
   HTMLElementToListen.addEventListener('click', (e) => {
     // -> On supprime l'item <li> de la liste contenu dans le tableau
-    deleteItemInArrayOfItems(HTMLElementToListen, listOfItems);
+    deleteItemInArrayOfItems(HTMLElementToListen, itemsList);
 
     // -> On sauvegarde dans le store
-    saveToStore(store, keyStore, listOfItems);
+    saveToStore(store, KEY_STORE, itemsList);
 
     // -> On ajoute la classe .suppression pour améliorer l'UX
     EL_LI.classList.add('suppression');
@@ -349,57 +363,56 @@ function onLiDelete(HTMLElementToListen, listOfItems, store, keyStore) {
   });
 }
 
-function onLiDragStart(liElement) {
-  return liElement.addEventListener('dragstart', (e) => {
-    liElement.classList.add('drag-start');
-
-    const EL_UL = liElement.closest('ul');
+// DONE : Refacto
+function onItemDragStart(itemElement) {
+  return itemElement.addEventListener('dragstart', (e) => {
+    itemElement.classList.add('drag-start');
 
     // -> Pour ajouter les :: before sur les li afin d'afficher l'indicateur meme quand on passe entre deux <li> sans survoler les <li> (en passant sur le côté) car entre les deux se trouve un ::before
-    EL_UL.classList.add('drag-en-cours');
-    const EL_LIST_LI = Array.from(EL_UL.childNodes);
+    listElement.classList.add('drag-en-cours');
   });
 }
 
 
-
-function onLiDragOver(liElement, indicatorElement) {
-  liElement.addEventListener('dragover', (e) => {
-    // Remettre la classe 'indicateur' supprimer dans l'event du dragend pour faire disparaitre l'indicateur et supprimer l'attribut style qui met le 'display' à 'none'
-    console.log('dragover')
+// DONE: Refacto variables
+// TODO : Refacto scope
+function onItemDragOver(itemElement, indicatorElement) {
+  itemElement.addEventListener('dragover', (e) => {
+    // -> Remettre la classe 'indicateur' supprimer dans l'event du dragend pour faire disparaitre l'indicateur et supprimer l'attribut style qui met le 'display' à 'none'
     indicatorElement.removeAttribute('style');
     indicatorElement.classList.add('indicateur');
-    const isDragLi = liElement.classList.contains('drag-start');
-    if(!isDragLi) {
+
+    const itemIsDragging = itemElement.classList.contains('drag-start');
+    if(!itemIsDragging) {
       const locationOfDrag = e.offsetY; 
-      const middleHeightOfLi = liElement.clientHeight / 2;
+      const middleHeightOfDragoverItem = itemElement.clientHeight / 2;
 
       // -> Si le drag est en dessous de la moitié de l'élément dragover
-      if(locationOfDrag > middleHeightOfLi) {
+      if(locationOfDrag > middleHeightOfDragoverItem) {
         // -> Y a-t-il un <li> après l'élément dragover ? 
-        const thereIsElementAfter = liElement.nextElementSibling ;
+        const thereIsElementAfter = itemElement.nextElementSibling ;
         
         // -> Si oui, s'agit-il de l'indicateur
-        const indicatorIsPresent = thereIsElementAfter ? thereIsElementAfter.classList.contains('indicateur') : false;
+        const indicatorIsPresentAfter = thereIsElementAfter ? thereIsElementAfter.classList.contains('indicateur') : false;
 
         // -> Ou bien s'agit-il de mon élément en drag
-        const nextElementIsDragLi = thereIsElementAfter ? thereIsElementAfter.classList.contains('drag-start') : false;
+        const nextElementIsDraggingItem = thereIsElementAfter ? thereIsElementAfter.classList.contains('drag-start') : false;
 
         // -> S'il ne s'agit ni de l'indicateur et ni de mon <li> en drag, alors j'affiche l'indicateur
-        if(!nextElementIsDragLi && !indicatorIsPresent) {
-          liElement.insertAdjacentElement('afterend', indicatorElement);
+        if(!nextElementIsDraggingItem && !indicatorIsPresentAfter) {
+          itemElement.insertAdjacentElement('afterend', indicatorElement);
         }
 
         // -> Si l'élément en dragover est suivi du <li> en drag alors je n'affiche pas l'indicateur
-        if(nextElementIsDragLi) {
+        if(nextElementIsDraggingItem) {
           indicatorElement.remove();
         }
       } 
       
       // -> Si le drag est au dessus de la moitié de l'élément dragover
-      if(locationOfDrag < middleHeightOfLi) {
+      if(locationOfDrag < middleHeightOfDragoverItem) {
         // -> Y a-t-il un <li> avant l'élément dragover ? 
-        const thereIsElementBefore = liElement.previousElementSibling ;
+        const thereIsElementBefore = itemElement.previousElementSibling ;
 
         // -> Si oui, s'agit-il de l'indicateur
         const indicatorIsPresentBefore = thereIsElementBefore ?  thereIsElementBefore.classList.contains('indicateur') : false;
@@ -409,7 +422,7 @@ function onLiDragOver(liElement, indicatorElement) {
 
         // -> S'il ne s'agit ni de l'indicateur et ni de mon <li> en drag, alors j'affiche l'indicateur
         if(!previousElementIsDragLi && !indicatorIsPresentBefore) {
-          liElement.insertAdjacentElement('beforebegin', indicatorElement);
+          itemElement.insertAdjacentElement('beforebegin', indicatorElement);
         }
 
         // -> Si l'élément en dragover est précédé du <li> en drag alors je n'affiche pas l'indicateur
@@ -427,12 +440,12 @@ function onLiDragOver(liElement, indicatorElement) {
 }
 
 
-function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, indexOfLi) {
-  liElement.addEventListener('dragend', (e) => {
-    liElement.removeAttribute('draggable');
-    liElement.classList.remove('drag-start');
+function onItemDragEnd(itemElement, indicatorElement, store, KEY_STORE, itemsList, indexOfLi) {
+  itemElement.addEventListener('dragend', (e) => {
+    itemElement.removeAttribute('draggable');
+    itemElement.classList.remove('drag-start');
     
-    const EL_UL = liElement.closest('ul');
+    const EL_UL = itemElement.closest('ul');
     let listOfLi = Array.from(EL_UL.children);
     const moveLiOnGrasp = listOfLi.includes(indicatorElement); 
     indicatorElement.style.display = 'none';
@@ -444,18 +457,18 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
         // debugger;
         listOfLi = Array.from(EL_UL.children);
         const indicatorPosition = listOfLi.indexOf(indicatorElement);
-        const liElementPosition = listOfLi.indexOf(liElement);
+        const liElementPosition = listOfLi.indexOf(itemElement);
         // -> Seulement si la transition concerne l'attribut 'transform'
 
         if(e.propertyName === 'transform') {
           
           
-          switch (liElement.dataset.phase) {
+          switch (itemElement.dataset.phase) {
             case 'take-off':
-              liElement.dataset.phase = 'moving';
+              itemElement.dataset.phase = 'moving';
 
-              const marginTopLiElement = Number.parseInt(window.getComputedStyle(liElement).marginTop);
-              const heightLiElement = liElement.offsetHeight;
+              const marginTopLiElement = Number.parseInt(window.getComputedStyle(itemElement).marginTop);
+              const heightLiElement = itemElement.offsetHeight;
               const totalHeightLiElement = heightLiElement + marginTopLiElement;
               const movingDown = indicatorPosition > liElementPosition;
               let translateValue = 0;
@@ -467,7 +480,7 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
   
               translateValue = totalHeightLiElement * itemsNumber;
 
-              liElement.style.transform += ` translateY(${translateValue}px)`;
+              itemElement.style.transform += ` translateY(${translateValue}px)`;
   
               if(movingDown) {
                 for(let i = liElementPosition + 1; i < indicatorPosition; i++) {
@@ -481,19 +494,19 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
               break;
               
             case 'moving':
-              liElement.dataset.phase = 'landing';
+              itemElement.dataset.phase = 'landing';
 
-              const translateYProperties = liElement.style.transform.split(' ').find(property => property.includes('translateY'));
+              const translateYProperties = itemElement.style.transform.split(' ').find(property => property.includes('translateY'));
 
-              liElement.style.boxShadow = '';
-              liElement.style.transform = `${translateYProperties}`;
+              itemElement.style.boxShadow = '';
+              itemElement.style.transform = `${translateYProperties}`;
             break;
                 
             case 'landing':
-              liElement.removeAttribute('data-phase');
-              liElement.removeEventListener('transitionend' ,animationHandler);
+              itemElement.removeAttribute('data-phase');
+              itemElement.removeEventListener('transitionend' ,animationHandler);
 
-              indicatorElement.replaceWith(liElement);
+              indicatorElement.replaceWith(itemElement);
               listOfLi.forEach(li => {
                   li.removeAttribute('class');
                   // li.removeAttribute('data-phase');
@@ -509,21 +522,18 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
                 const newListOfItems = [];
 
               EL_LIST_LI.forEach((li) => {
-                const EL_P_NOM = li.querySelector('.nom');
-                const EL_P_QUANTITY = li.querySelector('.quantite');
-                const EL_SELECT = li.querySelector('.unite');
+                const itemNameElement = li.querySelector('.nom');
+                const itemQuantityElement = li.querySelector('.quantite');
+                const itemSelectElement = li.querySelector('.unite');
 
                 newListOfItems.push({
-                  name: EL_P_NOM.textContent,
-                  quantity: EL_P_QUANTITY.textContent,
-                  unity: EL_SELECT.value.toLowerCase(),
+                  name: itemNameElement.textContent,
+                  quantity: itemQuantityElement.textContent,
+                  unity: itemSelectElement.value.toLowerCase(),
                 });
               });
             
-              console.log(newListOfItems);
-              saveToStore(store, keyStore, newListOfItems);
-
-
+              saveToStore(store, KEY_STORE, newListOfItems);
             break;
           
             default:
@@ -532,45 +542,21 @@ function onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems, 
         }
       }
 
-      liElement.addEventListener('transitionend', animationHandler);
+      itemElement.addEventListener('transitionend', animationHandler);
 
       // -> Attribut HTML ajouté pour gérer les différentes phases (décollage, déplacement, atterrissage)
-      liElement.dataset.phase = 'take-off';
+      itemElement.dataset.phase = 'take-off';
       // -> CSS à ajouter pour la phase de décollage et de déplacement
-      liElement.style.transform = 'scale(1.05)';
-      liElement.style.boxShadow = '0 0 24px rgba(32, 32, 32, .8)';
-      liElement.style.transition = 'box-shadow transform';
+      itemElement.style.transform = 'scale(1.05)';
+      itemElement.style.boxShadow = '0 0 24px rgba(32, 32, 32, .8)';
+      itemElement.style.transition = 'box-shadow transform';
       // -> CSS à ajouter pour corriger le problème d'affichage des unités
-      liElement.style.position = 'relative';
-      liElement.style.zIndex = '1';
+      itemElement.style.position = 'relative';
+      itemElement.style.zIndex = '1';
     }
-      
-
-
-
-    // const EL_LIST_LI = Array.from(EL_UL.childNodes);
-    // const newListOfItems = [];
-
-    // console.log(EL_LIST_LI);
-
-    // EL_LIST_LI.forEach((li) => {
-    //   const EL_P_NOM = li.querySelector('.nom');
-    //   const EL_P_QUANTITY = li.querySelector('.quantite');
-    //   const EL_SELECT = li.querySelector('.unite');
-
-      // newListOfItems.push({
-      //   name: EL_P_NOM.textContent,
-      //   quantity: EL_P_QUANTITY.textContent,
-      //   unity: EL_SELECT.value.toLowerCase(),
-      // })
-    // });
-
 
     // -> Retirer les ::before lorsque le drag est fini
     EL_UL.classList.remove('drag-en-cours');
-
-
-    // saveToStore(store, keyStore, newListOfItems);
   });
 
 
@@ -593,37 +579,52 @@ function onBtnGrap(HTMLElementToListen, indicatorElement) {
 }
 
 
-function eventsHandler(liElement, indicatorElement, listOfItems, store, keyStore) {
+// DONE: Refacto
+function eventsHandler(dependencies) {
+  // const {
+  //   itemElement,
+  //   items,
+  //   store,
+  //   KEY_STORE,
+  //  } = dependencies;
+
+  const itemElement = dependencies.itemElement;
+  const items = dependencies.items;
+  const KEY_STORE = dependencies.KEY_STORE;
+  const store = dependencies.store;
+
+  console.log(itemElement);
+  console.log(items);
+  console.log(store);
   // -> Ajouter les écouteurs d'évènement au <li>
     // -> Focus sur p.nom
-  const EL_P_NOM = liElement.querySelector('.nom');
-  onParagFocus(EL_P_NOM, listOfItems, store, keyStore);
+  const itemNameElement = itemElement.querySelector('.nom');
+  onItemNameOrQuantityFocus(itemNameElement, items, store, KEY_STORE);
 
     // -> Focus sur p.quantite
-  const EL_P_QUANTITY = liElement.querySelector('.quantite');
-  onParagFocus(EL_P_QUANTITY, listOfItems, store, keyStore);
+  const itemQuantityElement = itemElement.querySelector('.quantite');
+  onItemNameOrQuantityFocus(itemQuantityElement, items, store, KEY_STORE);
 
     // -> Change sur le select
-  const EL_SELECT = liElement.querySelector('.unite');
-  onSelectChange(EL_SELECT, listOfItems, store, keyStore);
+  const itemSelectElement = itemElement.querySelector('.unite');
+  onSelectChange(itemSelectElement, items, store, KEY_STORE);
 
     // -> Click sur le btn pour la suppression de l'item
-  const EL_DELETE_BTN = liElement.querySelector('.supprimer');
-  onLiDelete(EL_DELETE_BTN, listOfItems, store, keyStore);
+  const deleteBtnElement = itemElement.querySelector('.supprimer');
+  onLiDelete(deleteBtnElement, items, store, KEY_STORE);
 
     // -> Grap du bouton du <li>
-  const EL_HANDLE = liElement.querySelector('.poignee');
-  onBtnGrap(EL_HANDLE,indicatorElement);
+  const handleElement = itemElement.querySelector('.poignee');
+  onBtnGrap(handleElement,indicatorElement);
 
     // -> Drag du <li>
-  onLiDragStart(liElement);
+  onItemDragStart(itemElement);
 
     // -> Dragover du <li>
-  onLiDragOver(liElement, indicatorElement);
+  onItemDragOver(itemElement, indicatorElement);
 
     // -> Dragend du <li>
-  onLiDragEnd(liElement, indicatorElement, store, keyStore, listOfItems);
-
+  onItemDragEnd(itemElement, indicatorElement, store, KEY_STORE, items);
 }
 
 
@@ -632,7 +633,7 @@ function eventsHandler(liElement, indicatorElement, listOfItems, store, keyStore
 export {
   capitalizeFirstLetter,
   extractData,
-  createLiHtmlItem,
+  createItemElement,
   saveToStore,
   sendListByEmail,
   eventsHandler,
