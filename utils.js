@@ -239,7 +239,7 @@ function sendListByEmail(email, itemsList ) {
 
   itemsList.forEach((item) => {
     const itemName = item.name;
-    let formatedNameForURL = '';
+    let formatedNameForURL = itemName;
     const brokendownName = itemName.split(' ');
 
     if(brokendownName.length > 1) {

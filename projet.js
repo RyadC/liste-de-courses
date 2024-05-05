@@ -1,7 +1,7 @@
 /****** IMPORTS *******/
 /** Function **/
 import { 
-  capitalizeFirstLetter,
+  capitalizeValue,
   extractData,
   createItemElement,
   saveToStore,
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const product = extractData(inputValue, templateElement.content);
 
     //-> Mettre la 1ère lettre en majuscule
-    product.name = capitalizeFirstLetter(product.name);
+    product.name = capitalizeValue(product.name);
 
     // -> Stocker les données sous la forme d'un tableau d'objets. Chaque objet représentera un item.
     items.unshift(product);
