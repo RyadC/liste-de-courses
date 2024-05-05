@@ -53,7 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
     listElement.insertAdjacentElement("afterbegin",itemElement);
  
     // -> Ajouter les écouteurs d'évènement au <li> et ses éléments enfants
-    eventsHandler(itemElement, indicatorElement, items, store, KEY_STORE);
+    const dependencies = {
+      itemElement: itemElement,
+      items: items,
+      store,
+      KEY_STORE,
+    };
+
+    eventsHandler(dependencies);
     
     listElement.addEventListener('dragover', (e) => {
       e.dataTransfer.dropEffect = 'move';

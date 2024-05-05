@@ -182,78 +182,86 @@ function blurOnEnterPressHandler(e) {
   e.code === 'Enter' ? e.target.blur() : '';
 }
 
+// DONE : Refacto
 /**
- * 
- * @param {*} e 
- * @param {*} inputType 
+ * Updates item object property
+ * @param {HTMLElement} item The HTML element whose 'name' or 'quantity' value is changed
+ * @param {array} itemsList Array of each items object => {name, quantity, }
+ * @param {string} propertyToChange The item object property whose value must be changed
+ * @param {string} newValue The new value of the item objeect property
  */
-// function transformParagraphToInputHandler(pElement, inputType) {
-//   const EL_P = pElement;
-//   const EL_NEW_INPUT = transformPElementtoInput(EL_P, inputType);
-//   EL_NEW_INPUT.focus();
+function updatePropertyItemOfItemsArray(updateDependencies) {
+  const {
+    item,
+    itemsList,
+    propertyToChange,
+    newValue,
+  } = updateDependencies
 
-//   return {
-//     EL_NEW_INPUT,
-//     EL_P
-//   };
-  
-//   // EL_NEW_INPUT.addEventListener('keypress', blurOnEnterPressHandler);
-
-
-//   // // EL_NEW_INPUT.addEventListener('blur', () => {
-//   // //   switchBetweenPandInputInDOM(EL_P, EL_NEW_INPUT);
-//   // // });
-//   // EL_NEW_INPUT.addEventListener('blur', (e) => blurHandler(e, EL_P, EL_NEW_INPUT));
-// }
-
-
-function changeValueItemInArrayOfItems(item, itemsList, propertyToChange, newValue) {
-  // -> On récupère l'index de l'élément <li> dans la liste des <li>
-  const itemIndexInUlElement = findIndexOfItem(item);
+  // -> On récupère l'index de l'item <li> dans la liste des <li>
+  const itemIndex = findIndexOfItem(item);
 
   // -> On change la valeur de l'item <li>, selon la modification de l'utilisateur, dans le tableau
-  itemsList[itemIndexInUlElement][propertyToChange] = newValue;
+  itemsList[itemIndex][propertyToChange] = newValue;
 }
 
-function deleteItemInArrayOfItems(item, itemsList) {
-  // -> On récupère l'index de l'élément <li> dans la liste des <li>
-  const itemIndexInUlElement = findIndexOfItem(item);
+// DONE : Refacto
+/**
+ * Remove the item from the item objects array
+ * @param {HTMLElement} item The item to remove 
+ * @param {array} itemsList The list of item object 
+ */
+function deleteItemOfItemsArray(item, itemsList) {
+  // -> On récupère l'index de l'item <li> dans la liste des items <li>
+  const itemIndex = findIndexOfItem(item);
 
-  // -> On change la valeur de l'item <li>, selon la modification de l'utilisateur, dans le tableau
-  itemsList.splice(itemIndexInUlElement, 1);
+  // -> On l'item <li> de la liste 
+  itemsList.splice(itemIndex, 1);
 }
 
-
-function findIndexOfItem(HTMLElementToListen) {
+// DONE : Refacto
+/**
+ * Find the index of the item in the HTML items list
+ * @param {HTMLElement} item The item to find in the HTML list of items 
+ * @returns {number} Index of the item
+ */
+function findIndexOfItem(item) {
   // -> On récupère l'élément <ul>
-  const EL_UL = HTMLElementToListen.closest('ul');
+  const listElement = item.closest('#liste');
 
   // -> On récupère l'index de l'élément dans la liste des <li>
-  const itemIndexInUlElement = Array.from(EL_UL.children).indexOf(HTMLElementToListen.closest('li'));
+  const itemIndex = Array.from(listElement.children).indexOf(item.closest('li'));
 
-  return itemIndexInUlElement;
+  return itemIndex;
 }
 
-
-function saveToStore(store, KEY_STORE, listeOfUserItems) {
-  const stringListOfUserItems = JSON.stringify(listeOfUserItems);
-  store.setItem(KEY_STORE, stringListOfUserItems);
-}
-
-
+// DONE : Refacto
 /**
- * Opens the email manager with the list of products in the body of the email to the desired recipient
+ * Save the item objects in the store 
+ * @param {Storage} store Instance of Storage from localStorage
+ * @param {string} KEY_STORE The key to access on values in the store
+ * @param {array} itemsList Array of item objects to store
+ */
+function saveToStore(store, KEY_STORE, itemsList) {
+  const itemsListJSON = JSON.stringify(itemsList);
+  store.setItem(KEY_STORE, itemsListJSON);
+}
+
+// DONE : Refacto
+/**
+ * Opens the email manager with the list of items in the body of the email to the desired recipient
  * @param {string} email The recipient who should receive the email. An email address is expected
- * @param {array} itemsList An array that contains the list of items object 
+ * @param {array} itemsList An array that contains the list of item objects 
  */
 function sendListByEmail(email, itemsList ) {
   let url = '';
-  const subject = 'Liste%20de%20courses';
+  const SUBJECT = 'Liste%20de%20courses';
   let body = 'Voici%20la%20liste%20de%20course%20,%20n%27oublie%20rien%20stp%20%3A%0A%0A';
 
   itemsList.forEach((item) => {
-    let formatedNameForURL = item.name;
-    const brokendownName = item.name.split(' ');
+    const itemName = item.name;
+    let formatedNameForURL = '';
+    const brokendownName = itemName.split(' ');
 
     if(brokendownName.length > 1) {
       formatedNameForURL = brokendownName.join('%20');
@@ -262,23 +270,13 @@ function sendListByEmail(email, itemsList ) {
     body += `-%20${formatedNameForURL}%20(${item.quantity}%20${item.unity})%0D%0A`;
   });
 
-  url = `mailto:${email}?subject=${subject}&body=${body}`;
+  url = `mailto:${email}?subject=${SUBJECT}&body=${body}`;
 
   window.location = url;
 }
 
 
 /********************* EVENTS HANDLERS  ****************************/
-
-/**
- * 
- */
-// function blurHandler(e, elementToReplace, substituteElement) {
-//   switchBetweenPandInputInDOM(elementToReplace, substituteElement);
-  
-//   return elementToReplace;
-// }
-
 
 function onItemNameOrQuantityFocus(HTMLElementToListen, itemsList, store, KEY_STORE) {
   HTMLElementToListen.addEventListener('focus', (e) => {
@@ -288,7 +286,7 @@ function onItemNameOrQuantityFocus(HTMLElementToListen, itemsList, store, KEY_ST
 
       let propertyToChange = '';
 
-      if(HTMLElementToListen.contains('nom')) {
+      if(HTMLElementToListen.classList.contains('nom')) {
         inputElement.type = 'text';
         propertyToChange = 'name';
       } else {
@@ -314,11 +312,18 @@ function onItemNameOrQuantityFocus(HTMLElementToListen, itemsList, store, KEY_ST
         // -> On place cette nouvelle valeur dans le textContent de l'élément <p> qui va remplacer le <input>
         HTMLElementToListen.textContent = newInputValue;
 
-        // -> On remplace le <input> par le <p>
+        // -> On remplace le <input> par l'élément HTML de base
         inputElement.replaceWith(HTMLElementToListen);
 
-        // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
-        changeValueItemInArrayOfItems(HTMLElementToListen, itemsList, propertyToChange, newInputValue);
+        // -> On met à jour le tableau d'items selon la nouvelle valeur entrée par l'utilisateur
+        const updateDependencies = {
+          item: HTMLElementToListen,
+          itemsList,
+          propertyToChange,
+          newValue: newInputValue,
+        };
+
+        updatePropertyItemOfItemsArray(updateDependencies);
         
         // -> On sauvegarde dans le store
         saveToStore(store, KEY_STORE, itemsList);
@@ -333,7 +338,14 @@ function onSelectChange(HTMLElementToListen, itemsList, store, KEY_STORE) {
     const newSelectValue = e.srcElement.value;
   
     // -> On met à jour le tableau d'item selon la nouvelle valeur entrée par l'utilisateur
-    changeValueItemInArrayOfItems(HTMLElementToListen, itemsList, propertyToChange, newSelectValue);
+    const updateDependencies = {
+      HTMLElementToListen,
+      itemsList,
+      propertyToChange,
+      newValue: newSelectValue,
+    };
+
+    updatePropertyItemOfItemsArray(updateDependencies);
   
     // -> On sauvegarde dans le store
     saveToStore(store, KEY_STORE, itemsList);
@@ -346,7 +358,7 @@ function onLiDelete(HTMLElementToListen, itemsList, store, KEY_STORE) {
 
   HTMLElementToListen.addEventListener('click', (e) => {
     // -> On supprime l'item <li> de la liste contenu dans le tableau
-    deleteItemInArrayOfItems(HTMLElementToListen, itemsList);
+    deleteItemOfItemsArray(HTMLElementToListen, itemsList);
 
     // -> On sauvegarde dans le store
     saveToStore(store, KEY_STORE, itemsList);
@@ -581,21 +593,13 @@ function onBtnGrap(HTMLElementToListen, indicatorElement) {
 
 // DONE: Refacto
 function eventsHandler(dependencies) {
-  // const {
-  //   itemElement,
-  //   items,
-  //   store,
-  //   KEY_STORE,
-  //  } = dependencies;
+  const {
+    itemElement,
+    items,
+    store,
+    KEY_STORE,
+   } = dependencies;
 
-  const itemElement = dependencies.itemElement;
-  const items = dependencies.items;
-  const KEY_STORE = dependencies.KEY_STORE;
-  const store = dependencies.store;
-
-  console.log(itemElement);
-  console.log(items);
-  console.log(store);
   // -> Ajouter les écouteurs d'évènement au <li>
     // -> Focus sur p.nom
   const itemNameElement = itemElement.querySelector('.nom');
