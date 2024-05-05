@@ -1,14 +1,18 @@
 /****** IMPORTS *******/
-/** Function **/
+/** Helpers Functions **/
 import { 
   capitalizeValue,
   extractData,
   createItemElement,
   saveToStore,
   sendListByEmail,
+} from './helpers-functions.js';
+
+
+/** Event Handler function */
+import { 
   eventsHandler,
-  
-} from './utils.js';
+} from './events-functions.js';
 
 
 /** DOM Elements **/
@@ -19,8 +23,8 @@ import {
   listElement,
   indicatorElement,
 } from './dom-elements.js'
-
 /**********************/
+
 
 // * N'exécute le code que si le HTML et le CSS est parsé
 document.addEventListener('DOMContentLoaded', () => {
@@ -54,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
  
     // -> Ajouter les écouteurs d'évènement au <li> et ses éléments enfants
     const dependencies = {
-      itemElement: itemElement,
-      items: items,
+      itemElement,
+      itemsList: items,
       store,
       KEY_STORE,
     };
@@ -101,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // -> Ajouter les écouteurs d'évènement au <li> et ses éléments enfants
     const dependencies = {
       itemElement: itemElement,
-      items: items,
+      itemsList: items,
       store,
       KEY_STORE,
     }
